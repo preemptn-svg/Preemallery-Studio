@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎀 บันทึกรายรับ-รายจ่าย - Preemallery Studio 🎀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; position: relative; overflow-x: hidden; }
+        #bg-video { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+        .bg-overlay { position: fixed; inset: 0; background: rgba(224, 242, 254, 0.4); backdrop-filter: blur(1px); z-index: -1; }
+        .glass { background: rgba(255,255,255,.75)!important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #E0F2FE; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #7DD3FC; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#E0F2FE] min-h-screen p-4 md:p-8 text-slate-700">
+
+<video id="bg-video" autoplay muted loop playsinline>
+    <source src="พื้นหลัง.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8 flex flex-col items-center">
+        <img src="https://drive.google.com/thumbnail?authuser=0&sz=w320&id=16UQrXCNxwYcWKvMkoM6JB47pJKXIDg3E" alt="Logo" class="w-16 h-16 object-contain rounded-2xl mb-4">
+        <h1 class="text-4xl md:text-5xl font-bold text-[#FF8E9E]">บันทึกรายรับ-รายจ่าย</h1>
+        <p class="text-sm text-sky-700/70 font-medium bg-white/50 px-4 py-1 rounded-full mt-2">✨ Preemallery Studio ✨</p>
+    </div>
+
+    <!-- ส่วนควบคุม -->
+    <div class="glass rounded-2xl p-4 mb-6 shadow-md border border-sky-100 flex flex-wrap gap-2 justify-center">
+        <select id="time-filter" onchange="saveAndRender()" class="p-2 bg-slate-50 border border-pink-100 rounded-xl text-xs font-medium">
+            <option value="all">ทั้งหมด 🌱</option>
+            <option value="today">เฉพาะวันนี้ ☀️</option>
+            <option value="week">7 วันล่าสุด 🗓️</option>
+            <option value="month">เดือนนี้ 🍰</option>
+        </select>
+        <button onclick="exportToCSV()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all">📊 โหลด CSV</button>
+        <button onclick="exportBackup()" class="bg-sky-400 hover:bg-sky-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all">💾 สำรองข้อมูล</button>
+        <button onclick="resetAllData()" class="bg-rose-400 hover:bg-rose-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all">🗑️ รีเซ็ต</button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- ฝั่งซ้าย: ฟอร์ม -->
+        <div class="md:col-span-5 space-y-6">
+            <div class="glass rounded-3xl p-5 shadow-xl border border-sky-100">
+                <p id="balance" class="text-4xl font-bold text-center text-[#FF8E9E] mb-4">฿0.00</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-green-50 p-3 rounded-2xl text-center"><p class="text-[10px] text-green-600">รับ</p><p id="total-income" class="font-bold text-green-700">฿0.00</p></div>
+                    <div class="bg-red-50 p-3 rounded-2xl text-center"><p class="text-[10px] text-red-500">จ่าย</p><p id="total-expense" class="font-bold text-red-600">฿0.00</p></div>
+                </div>
+            </div>
+
+            <!-- ส่วนบันทึก -->
+            <div class="glass rounded-3xl p-5 shadow-xl border border-sky-100 space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btn-type-income" onclick="setType('income')" class="py-2 rounded-xl border-2 border-green-300 bg-green-50 text-green-700 text-sm font-bold">💰 รายรับ</button>
+                    <button id="btn-type-expense" onclick="setType('expense')" class="py-2 rounded-xl border-2 border-transparent bg-slate-50 text-slate-400 text-sm font-bold">💸 รายจ่าย</button>
+                </div>
+                <input type="date" id="date" class="w-full p-2 bg-slate-50 border border-pink-100 rounded-xl text-xs">
+                <select id="category" class="w-full p-2 bg-slate-50 border border-pink-100 rounded-xl text-xs"></select>
+                <input type="text" id="text" placeholder="ชื่อรายการ (เช่น ข้าวมันไก่)" class="w-full p-2 bg-slate-50 border border-pink-100 rounded-xl text-sm">
+                <input type="number" id="amount" placeholder="จำนวนเงิน" class="w-full p-2 bg-slate-50 border border-pink-100 rounded-xl text-sm font-bold">
+                <button onclick="addTransaction()" class="w-full bg-[#FF8E9E] text-white p-3 rounded-xl font-bold hover:bg-[#ff7688]">✨ บันทึกรายการ</button>
+            </div>
+        </div>
+
+        <!-- ฝั่งขวา: รายการ -->
+        <div class="md:col-span-7 space-y-6">
+            <div class="glass rounded-3xl p-5 shadow-xl border border-sky-100">
+                <h3 class="font-bold text-md text-[#FF8E9E] mb-4">📖 ไดอารี่การใช้เงิน</h3>
+                <ul id="transaction-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // โครงสร้างข้อมูลพื้นฐานและฟังก์ชันการจัดการ
+    let categories = JSON.parse(localStorage.getItem('pastel_wallet_categories')) || {
+        income: [{val: '💼 เงินเดือน', lbl: 'เงินเดือน'}, {val: '🧧 รายได้เสริม', lbl: 'รายได้เสริม'}],
+        expense: [{val: '🍱 อาหาร', lbl: 'อาหาร'}, {val: '🛍️ ช้อปปิ้ง', lbl: 'ช้อปปิ้ง'}]
+    };
+    let transactions = JSON.parse(localStorage.getItem('pastel_wallet_v1')) || [];
+    let currentType = 'income';
+
+    function setType(type) {
+        currentType = type;
+        document.getElementById('btn-type-income').className = type === 'income' ? "py-2 rounded-xl border-2 border-green-300 bg-green-50 text-green-700 text-sm font-bold" : "py-2 rounded-xl border-2 border-transparent bg-slate-50 text-slate-400 text-sm font-bold";
+        document.getElementById('btn-type-expense').className = type === 'expense' ? "py-2 rounded-xl border-2 border-red-300 bg-red-50 text-red-700 text-sm font-bold" : "py-2 rounded-xl border-2 border-transparent bg-slate-50 text-slate-400 text-sm font-bold";
+        updateCategoryDropdown();
+    }
+
+    function updateCategoryDropdown() {
+        const dropdown = document.getElementById('category');
+        dropdown.innerHTML = '';
+        categories[currentType].forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat.val;
+            opt.innerText = cat.val;
+            dropdown.appendChild(opt);
+        });
+    }
+
+    function addTransaction() {
+        const text = document.getElementById('text').value || document.getElementById('category').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        if (!amount || amount <= 0) return alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
+        
+        transactions.unshift({
+            id: Date.now(), text, amount, type: currentType, 
+            category: document.getElementById('category').value,
+            date: document.getElementById('date').value || new Date().toISOString().split('T')[0]
+        });
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('pastel_wallet_v1', JSON.stringify(transactions));
+        const list = document.getElementById('transaction-list');
+        list.innerHTML = '';
+        let incomeSum = 0, expenseSum = 0;
+        
+        transactions.forEach(t => {
+            if (t.type === 'income') incomeSum += t.amount; else expenseSum += t.amount;
+            const li = document.createElement('li');
+            li.className = `flex justify-between p-3 rounded-xl border ${t.type === 'income' ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`;
+            li.innerHTML = `<span>${t.category} ${t.text}</span><span class="font-bold">${t.amount.toLocaleString()}</span>`;
+            list.appendChild(li);
+        });
+        document.getElementById('balance').innerText = `฿${(incomeSum - expenseSum).toLocaleString()}`;
+        document.getElementById('total-income').innerText = `฿${incomeSum.toLocaleString()}`;
+        document.getElementById('total-expense').innerText = `฿${expenseSum.toLocaleString()}`;
+    }
+
+    function resetAllData() {
+        if (confirm('ล้างข้อมูลทั้งหมด?')) {
+            transactions = [];
+            saveAndRender();
+        }
+    }
+
+    // Init
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+    setType('income');
+    saveAndRender();
+</script>
+</body>
+</html>
