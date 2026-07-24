@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>อยู่บ้านคาเฟ่ POS - Cozy Cafe Edition</title>
+    <!-- นำเข้าฟ้อนต์ Mali -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ⚡ ดึง Tailwind CSS เข้ามาเพื่อประมวลผล Layout ของสูตรเครื่องดื่ม -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* --- ตั้งค่าพื้นฐานและฟอนต์ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Mali', sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f7f9f6; 
+            color: #2c3e2b; 
+            overflow: hidden;
+        }
+
+        /* --- 1. Side Bar สไตล์มินิมอลคาเฟ่ --- */
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            height: calc(100vh - 30px);
+            display: flex;
+            flex-direction: column;
+            margin: 15px 0 15px 15px;               
+            border-radius: 20px;        
+            box-shadow: 0 4px 20px rgba(140, 160, 140, 0.1); 
+            overflow: hidden;           
+        }
+
+        .sidebar .logo-area {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px !important;
+            height: 60px !important;
+            padding: 0 15px !important;
+            font-size: 22px !important;
+            font-weight: 700 !important;
+            color: #1E361E !important;
+            background-color: #D8E7D7 !important;
+            border-radius: 20px 20px 0 0 !important; 
+        }
+
+        .sidebar .logo-area .logo-img {
+            width: 38px !important;
+            height: 38px !important;
+            max-width: 38px !important;
+            max-height: 38px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            display: block !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+      .sidebar-menu {
+            list-style: none;
+            margin-top: 0;
+            display: flex;
+            flex-direction: column;
+            flex: 1;                 
+            justify-content: space-between; 
+            gap: 0;
+            padding: 15px 12px; 
+        }
+
+        .sidebar-menu li {
+            padding: 12px 16px !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            justify-content: flex-start; 
+            align-items: center;
+            color: #3b4f3a;
+            border-radius: 12px;
+            gap: 12px; 
+            width: 100%;
+            position: relative;
+            margin-top: 15px; 
+        }
+
+        .sidebar-menu li:hover, .sidebar-menu li.active {
+            background-color: #D8E7D7;
+            color: #1E361E;
+            font-weight: 600;
+            padding-left: 20px !important;
+        }
+
+        .badge {
+            background: #2E4F2E;
+            color: #ffffff; 
+            padding: 2px 8px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        /* --- ส่วนเนื้อหาหลัก --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 30px) !important;
+            background-color: #ffffff !important; 
+            border-radius: 20px !important;
+            overflow: hidden !important;
+            margin: 15px !important;
+            box-shadow: 0 4px 20px rgba(140, 160, 140, 0.08) !important;
+        }
+
+        /* --- Top Bar สำหรับสลับสิทธิ์ --- */
+        .top-navbar {
+            background-color: #D8E7D7;
+            height: 65px;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #cce0cb;
+        }
+
+        .category-bar {
+            background-color: #f4f7f3 !important; 
+            height: 60px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e8ede7;
+            overflow-x: auto;
+        }
+
+        .category-bar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .category-bar::-webkit-scrollbar-thumb {
+            background: #cbd5cb;
+            border-radius: 4px;
+        }
+
+        .cat-btn {
+            padding: 6px 18px;
+            border: 1px solid #d8e2d7;
+            background-color: #ffffff;
+            color: #3b4f3a;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .cat-btn:hover {
+            background-color: #D8E7D7;
+            border-color: #aebdac;
+        }
+
+        .cat-btn.active {
+            background-color: #2E4F2E;
+            color: #ffffff;
+            border-color: #2E4F2E;
+            box-shadow: 0 4px 10px rgba(46, 79, 46, 0.2);
+        }
+
+        .page-view {
+            display: none; 
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .page-view.active-view {
+            display: flex; 
+        }
+
+        .pos-container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .pos-menu-side {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #fafcfa;
+        }
+
+        .menu-section {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 16px;
+            overflow-y: auto;
+            align-content: start;
+        }
+
+        .menu-card {
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            border: 1px solid #e6ede5;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(140,160,140,0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+            height: fit-content;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(46, 79, 46, 0.12);
+            border-color: #aebdac;
+        }
+
+        .menu-img-container {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background-color: #f4f7f3;
+            position: relative;
+        }
+
+        .menu-custom-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .menu-img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background-color: #f4f7f3; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px; 
+            color: #666666;
+            border-bottom: 1px solid #e6ede5;
+        }
+
+        .menu-info {
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .menu-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e2b;
+            word-break: break-word;
+        }
+        
+        .menu-price {
+            font-size: 13px;
+            color: #2E4F2E;
+            font-weight: 700;
+        }
+
+        .cart-section { 
+            width: 360px; 
+            display: flex; 
+            flex-direction: column;
+            background-color: #ffffff;    
+            border-left: 1px solid #e6ede5;
+            margin: 0;                    
+            overflow: hidden;             
+            height: 100%;                 
+        }
+
+        .table-header {
+            background-color: #f4f7f3 !important;
+            color: #1E361E;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            height: 60px;
+            line-height: 28px;
+            padding: 16px;
+            border-bottom: 1px solid #d8e2d7; 
+        }
+
+        .cart-items {
+            flex-grow: 1 !important; 
+            overflow-y: auto !important;
+            padding: 15px;
+            background-color: #ffffff;
+        }
+        
+        .cart-item { 
+            display: flex; 
+            align-items: center;
+            justify-content: space-between; 
+            margin-bottom: 10px; 
+            padding: 12px 14px !important; 
+            font-size: 14px; 
+            background-color: #f8faf7;
+            border: 1px solid #ebdbe7;
+            border-radius: 12px !important;
+            border-color: #e6ede5;
+        }
+
+        .cart-item-details {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            margin-right: 12px;
+            color: #2c3e2b;
+        }
+
+        .btn-remove-item {
+            background: none;
+            border: none;
+            color: #c0392b;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 5px;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+
+        .btn-remove-item:hover {
+            transform: scale(1.2);
+        }
+
+        .bill-summary { 
+            padding: 20px; 
+            background-color: #f4f7f3; 
+            border-top: 1px solid #e6ede5; 
+        }
+
+        .summary-row { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 12px; 
+            font-size: 15px; 
+        }
+
+        #main-pay-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #2E4F2E;
+            color: #ffffff;            
+            border: none;              
+            border-radius: 12px;        
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 79, 46, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        #main-pay-btn:hover {
+            background-color: #1E361E;
+            box-shadow: 0 6px 16px rgba(46, 79, 46, 0.25);
+        }
+
+        .pay-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(44, 62, 43, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .pay-modal-content {
+            background-color: #ffffff;
+            padding: 28px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            position: relative;
+            animation: fadeInModal 0.25s ease-out;
+        }
+
+        @keyframes fadeInModal {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .pay-modal-close {
+            position: absolute;
+            right: 20px;
+            top: 16px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .pay-modal-close:hover { color: #333; }
+
+        .pay-select-btn {
+            flex: 1;
+            background-color: #ffffff; 
+            color: #3b4f3a;            
+            border: 1px solid #cbd5cb; 
+            border-radius: 50px;       
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease; 
+        }
+       
+        .pay-select-btn:hover {
+            background-color: #f4f7f3; 
+            border-color: #a3bda3;     
+        }
+
+        .pay-select-btn.active {
+            background-color: #2E4F2E !important;
+            color: #ffffff !important;            
+            border-color: #2E4F2E !important;
+            box-shadow: 0 4px 10px rgba(46, 79, 46, 0.15);
+        }
+
+        .main-content input[type="text"], 
+        .main-content input[type="number"], 
+        .main-content input[type="time"], 
+        .main-content select,
+        .main-content textarea {
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #2c3e2b;
+            background-color: #ffffff;
+            border: 1px solid #cbd5cb; 
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .main-content input[type="text"]:focus, 
+        .main-content input[type="number"]:focus, 
+        .main-content input[type="time"]:focus, 
+        .main-content select:focus,
+        .main-content textarea:focus {
+            border-color: #2E4F2E;
+            box-shadow: 0 0 0 3px rgba(46, 79, 46, 0.15);
+        }
+
+        .main-content select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232E4F2E'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+            padding-right: 40px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #2E4F2E;
+            background-color: #ffffff;
+            border: 1px dashed #cbd5cb;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-input:hover + .file-upload-btn {
+            border-color: #2E4F2E;
+            background-color: #f4f7f3;
+        }
+
+        .content-box { 
+            background: #ffffff; 
+            padding: 24px; 
+            border: 1px solid #e6ede5; 
+            border-radius: 16px; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            box-shadow: 0 2px 8px rgba(140,160,140,0.03); 
+        }
+
+        .content-box h2, .page-view h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e2b;
+            margin-bottom: 4px;
+        }
+
+        .custom-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            font-size: 14px; 
+        }
+
+        .custom-table th, .custom-table td { 
+            border: 1px solid #e6ede5; 
+            padding: 14px 12px; 
+            text-align: center; 
+            vertical-align: middle; 
+        }
+
+        .custom-table th { 
+            background-color: #f4f7f3; 
+            font-weight: 700; 
+            color: #1E361E; 
+        }
+        
+        .btn-success { 
+            background-color: #2E4F2E;
+            color: white; 
+            padding: 8px 18px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: background 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #1E361E;
+        }
+
+        .btn-stock-delete { 
+            background-color: #fdf2f2; 
+            color: #ec5252; 
+            border: 1px solid #fde2e2; 
+            padding: 6px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-stock-delete:hover {
+            background-color: #ec5252;
+            color: white;
+        }
+
+        .menu-section, .cart-items, #recipe-menu-list, .recipe-details {
+            overflow-y: auto !important;
+        }
+
+        @keyframes popUpEffect {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ================= 🖨️ ส่วนตั้งค่าสำหรับพิมพ์ใบเสร็จ Thermal Printer 80 มม. ================= */
+        #receipt-print-area {
+            display: none !important; /* บังคับซ่อนไม่ให้แสดงบนหน้าจอปกติทางขวาหรือจุดอื่นๆ */
+        }
+
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #receipt-print-area, #receipt-print-area * {
+                visibility: visible !important;
+            }
+            #receipt-print-area {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #ffffff;
+                z-index: 9999;
+            }
+        }
+
+        /* ================= 🍵 ส่วนแต่งปฏิทินสไตล์มัทฉะ มินิมอล ================= */
+        input[type="date"] {
+            font-family: 'Mali', sans-serif !important;
+            background-color: #ffffff;
+            border-radius: 16px !important; /* กรอบโค้งมน */
+            border: 1px solid #cbd5cb !important;
+            padding: 10px 16px;
+            color: #2c3e2b;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="date"]:focus {
+            border-color: #2E4F2E !important;
+            box-shadow: 0 0 0 3px rgba(46, 79, 46, 0.15);
+        }
+
+        /* ปรับแต่งหน้าตาปฏิทินข้างใน (Calendar Dropdown) สำหรับเบราว์เซอร์ส่วนใหญ่ */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: sepia(100%) hue-rotate(65deg) saturate(300%) brightness(90%); /* ปรับไอคอนปฏิทินให้เป็นโทนสีเขียว */
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. แถบเมนูด้านซ้าย -->
+    <div class="sidebar">
+        <div class="logo-area" id="sidebar-logo">
+            <img src="https://lh3.googleusercontent.com/d/12rN-RYoQU7UtjkmC-_MMN2yBRUexeWro" class="logo-img" alt="Logo">
+            อยู่บ้านคาเฟ่
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" id="menu-pos-li" onclick="switchPage('pos-view', this)">🪑 รับออเดอร์</li>
+            <li onclick="switchPage('kitchen-view', this)">🍳 ออเดอร์กำลังทำ <span class="badge" id="kitchen-badge">0</span></li>
+            <li onclick="switchPage('history-view', this)">📄 สมุดบัญชีคาเฟ่</li>
+            <li onclick="switchPage('stock-view', this)" id="nav-stock">📦 ระบบคลังบาร์น้ำ</li>
+            <li onclick="switchPage('promo-view', this)">📋 สูตรเครื่องดื่ม</li>
+            <li onclick="switchPage('report-view', this)" id="nav-report">📊 สถิติบาร์และยอดขาย</li>
+            <li onclick="switchPage('admin-view', this)" id="nav-admin">⚙️ คุมร้านสไตล์เรา</li>
+        </ul>
+    </div>
+
+    <!-- ส่วนเนื้อหาหลักแสดงผลขวามือ -->
+    <div class="main-content">
+
+        <!-- ⚡ แถบแสดงและสลับสิทธิ์การใช้งาน (Role Selector Topbar) -->
+        <div class="top-navbar">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                <span>👤 ผู้ใช้งานปัจจุบัน:</span>
+                <strong id="current-role-badge" style="background: #2E4F2E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px;">👨‍🍳 พนักงานหน้าบาร์ (Barista)</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px; color: #555;">สลับสิทธิ์:</span>
+                <select id="role-switcher" onchange="handleRoleChange(this.value)" style="padding: 6px 12px; font-size: 12px; width: 160px; border-radius: 8px; background-color: white;">
+                    <option value="staff">พนักงานหน้าบาร์</option>
+                    <option value="admin">เจ้าของร้าน (แอดมิน)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ================= 🪑 หน้าจอเปิดบาร์ (POS) ================= -->
+        <div id="pos-view" class="page-view active-view" style="flex-direction: column; padding:0;">
+            <div id="bar-status-banner" style="background-color: #fef08a; padding: 6px 20px; font-size: 12px; color: #854d0e; font-weight: 500; display: none; border-bottom: 1px solid #fef08a;"></div>
+            
+            <div class="pos-container">
+                <!-- ฝั่งเมนูซ้ายมือ -->
+                <div class="pos-menu-side">
+                    <div class="category-bar" id="category-box"></div>
+                    <div class="menu-section" id="menu-grid"></div>
+                </div>
+                
+                <!-- ตะกร้าออเดอร์ฝั่งขวา -->
+                <div class="cart-section">
+                    <div class="table-header">รายการออเดอร์</div>
+                    <div class="cart-items" id="cart-box">
+                        <p style="text-align: center; color: #7f8c8d; margin-top: 20px;">ยังไม่มีรายการเครื่องดื่ม</p>
+                    </div>
+                    
+                    <div class="bill-summary">
+                        <div class="checkout-container" style="width: 100%; display: flex; flex-direction: column; gap: 15px; box-sizing: border-box;">
+                            <div class="summary-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <span style="font-size: 16px; font-weight: 700; color: #2c3e2b;">ยอดสุทธิ</span>
+                                <span style="display: flex; gap: 8px; font-size: 18px; font-weight: 700; color: #2E4F2E;">
+                                    <span id="summary-subtotal">0.00</span>
+                                    <span>บาท</span>
+                                </span>
+                            </div>
+                            <button id="main-pay-btn" onclick="openPaymentModal()">ชำระเงิน (<span id="btn-pay-amount">0.00</span> ฿)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- หน้าต่างป๊อปอัพชำระเงิน -->
+            <div id="paymentModal" class="pay-modal" style="display: none;">
+                <div class="pay-modal-content">
+                    <span class="pay-modal-close" onclick="closePaymentModal()">&times;</span>
+                    <h3 id="receipt-shop-name" style="text-align: center; margin-top: 0; color: #2c3e2b; font-weight: 700;">อยู่บ้านคาเฟ่</h3>
+                    <p id="receipt-shop-address" style="text-align: center; font-size: 11px; color: #666; margin-top: -4px; margin-bottom: 15px;">ที่อยู่สำหรับหัวบิล</p>
+                    <h4 style="text-align: center; color: #2E4F2E; margin: 10px 0; font-size: 16px; font-weight: 700;">ยอดชำระสุทธิ: <span id="modal-total-amount">0.00</span> บาท</h4>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button type="button" class="pay-select-btn" id="select-cash-btn" onclick="togglePayOption('cash')">เงินสด</button>
+                        <button type="button" class="pay-select-btn" id="select-transfer-btn" onclick="togglePayOption('transfer')">เงินโอน</button>
+                    </div>
+
+                    <!-- 💰 เงินสด / เงินโอน -->
+                    <div id="modal-cash-section" style="display: none; text-align: center;">
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; margin-bottom: 6px; font-size: 14px;">ยอดเงินที่ได้รับ:</label>
+                            <input type="number" id="cash-received-input" oninput="calculateChange()" placeholder="0.00" style="text-align: center; max-width: 180px; width: 100%; padding: 8px; border: 1px solid #cbd5cb; border-radius: 50px; font-size: 16px; outline: none;">
+                        </div>
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #d97706;">
+                            เงินทอน: <span id="cash-change-display">0.00</span> บาท
+                        </div>
+                    </div>
+
+                    <!-- 📱 เงินโอน -->
+                    <div id="modal-transfer-section" style="display: none; text-align: center;">
+                        <p style="font-size: 13px; color: #666; margin: 5px 0 10px 0;">ยอดที่ต้องโอน: <strong id="transfer-amount-display" style="color: #2E4F2E; font-size: 15px;">0.00</strong> บาท</p>
+                        <div style="background: white; padding: 10px; display: inline-block; border-radius: 12px; border: 1px solid #e6ede5; margin-bottom: 15px;">
+                            <img id="promptpay-qr-img" src="" alt="PromptPay QR Code" style="width: 200px; height: 200px; display: block;">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="submitPaymentOrder()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer;">
+                        ยืนยันการทำรายการ
+                    </button>
+                </div>
+            </div>
+
+            <!-- หน้าต่างแจ้งเตือนสำเร็จ -->
+            <div id="successModal" class="pay-modal" style="display: none; z-index: 2000;">
+                <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                    <div style="width: 60px; height: 60px; background: #D8E7D7; color: #2E4F2E; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; font-weight: bold;">
+                        ✓
+                    </div>
+                    <h3 style="margin: 0 0 10px; color: #1E361E; font-size: 18px; font-weight: 700;">ทำรายการสำเร็จ!</h3>
+                    <p id="success-modal-message" style="margin: 0 0 20px; color: #666; font-size: 14px; line-height: 1.5;"></p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" onclick="printReceipt()" style="width: 100%; background-color: #3b4f3a; color: white; border: none; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer;">
+                            🖨️ พิมพ์ใบเสร็จ 
+                        </button>
+                        <button type="button" onclick="closeSuccessModal()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer;">
+                            เสร็จสิ้น
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎉 หน้าต่างป๊อปอัพแจ้งเตือนเมื่อเพิ่มเมนูใหม่สำเร็จ -->
+        <div id="addStockSuccessModal" class="pay-modal" style="display: none; z-index: 2000;">
+            <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                <div style="width: 60px; height: 60px; background: #D8E7D7; color: #2E4F2E; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; font-weight: bold;">
+                    ✨
+                </div>
+                <h3 style="margin: 0 0 10px; color: #1E361E; font-size: 18px; font-weight: bold;">เพิ่มเมนูสำเร็จ!</h3>
+                <p id="add-stock-success-message" style="margin: 0 0 20px; color: #666; font-size: 14px; line-height: 1.5;"></p>
+                <button type="button" onclick="closeAddStockSuccessModal()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
+        <!-- 🧪 หน้าต่างป๊อปอัพยืนยันการเพิ่มวัตถุดิบสำเร็จ -->
+        <div id="addMaterialSuccessModal" class="pay-modal" style="display: none; z-index: 2000;">
+            <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                <div style="width: 60px; height: 60px; background: #D8E7D7; color: #2E4F2E; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; font-weight: bold;">
+                    ✨
+                </div>
+                <h3 style="margin: 0 0 10px; color: #1E361E; font-size: 18px; font-weight: bold;">เพิ่มวัตถุดิบสำเร็จ!</h3>
+                <p id="add-material-success-message" style="margin: 0 0 20px; color: #666; font-size: 14px; line-height: 1.5;"></p>
+                <button type="button" onclick="closeAddMaterialSuccessModal()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
+        <!-- 📝 หน้าต่างป๊อปอัพแจ้งเตือนเมื่อบันทึกสูตรสำเร็จ -->
+        <div id="recipeSuccessModal" class="pay-modal" style="display: none; z-index: 2000;">
+            <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                <div style="width: 60px; height: 60px; background: #D8E7D7; color: #2E4F2E; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; font-weight: bold;">
+                    💚
+                </div>
+                <h3 style="margin: 0 0 10px; color: #1E361E; font-size: 18px; font-weight: bold;">บันทึกสูตรสำเร็จ!</h3>
+                <p id="recipe-success-message" style="margin: 0 0 20px; color: #666; font-size: 14px; line-height: 1.5;"></p>
+                <button type="button" onclick="closeRecipeSuccessModal()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
+        <!-- 🚨 หน้าต่างป๊อปอัพยืนยันการลบเมนูเครื่องดื่ม -->
+        <div id="deleteConfirmModal" class="pay-modal" style="display: none;">
+            <div class="pay-modal-content" style="max-width: 380px; width: 90%; text-align: center; padding: 30px 24px;">
+                <span class="pay-modal-close" onclick="closeDeleteModal()">&times;</span>
+                <div style="width: 60px; height: 60px; background: #fdedec; color: #e74c3c; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 26px; margin: 0 auto 15px; font-weight: bold;">
+                    🗑️
+                </div>
+                <h3 style="margin: 0 0 10px; color: #c0392b; font-size: 18px; font-weight: bold;">ยืนยันการลบรายการ?</h3>
+                <p style="margin: 0 0 24px; color: #666; font-size: 14px; line-height: 1.5;">
+                    คุณต้องการนำรายการเครื่องดื่ม <br><strong id="delete-target-name" style="color: #333; font-size: 15px;">-</strong><br> ออกจากระบบคลังบาร์น้ำใช่หรือไม่?
+                </p>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" onclick="closeDeleteModal()" style="flex: 1; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+                        ยกเลิก
+                    </button>
+                    <button type="button" id="btn-confirm-delete-action" style="flex: 1; background-color: #e74c3c; color: white; border: none; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+                        ยืนยันลบข้อมูล
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚨 หน้าต่างป๊อปอัพยืนยันการลบวัตถุดิบ -->
+        <div id="deleteMaterialConfirmModal" class="pay-modal" style="display: none;">
+            <div class="pay-modal-content" style="max-width: 380px; width: 90%; text-align: center; padding: 30px 24px;">
+                <span class="pay-modal-close" onclick="closeDeleteMaterialModal()">&times;</span>
+                <div style="width: 65px; height: 65px; background: #fdedec; color: #e74c3c; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 26px; margin: 0 auto 15px; font-weight: bold;">
+                    🗑️
+                </div>
+                <h3 style="margin: 0 0 10px; color: #c0392b; font-size: 18px; font-weight: bold;">ยืนยันการลบวัตถุดิบ?</h3>
+                <p style="margin: 0 0 24px; color: #666; font-size: 14px; line-height: 1.5;">
+                    คุณยืนยันที่จะลบวัตถุดิบ <br><strong id="delete-material-name" style="color: #333; font-size: 15px;">-</strong><br> ใช่หรือไม่?
+                </p>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button type="button" onclick="closeDeleteMaterialModal()" style="flex: 1; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+                        ยกเลิก
+                    </button>
+                    <button type="button" id="btn-confirm-delete-material" style="flex: 1; background-color: #e74c3c; color: white; border: none; padding: 10px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;">
+                        ยืนยันลบข้อมูล
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🔒 หน้าต่างจำกัดสิทธิ์ (Access Denied Modal) -->
+        <div id="accessDeniedModal" class="pay-modal" style="display: none; z-index: 3000;">
+            <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 360px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                <div style="width: 65px; height: 65px; background: #fdedec; color: #e74c3c; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 15px; font-weight: bold;">
+                    🚫
+                </div>
+                <h3 style="margin: 0 0 10px; color: #c0392b; font-size: 18px; font-weight: bold;">ไม่อนุญาตให้เข้าถึง</h3>
+                <p style="margin: 0 0 20px; color: #666; font-size: 13px; line-height: 1.5;">
+                    คุณกำลังใช้งานในฐานะ **พนักงานหน้าบาร์** <br>ไม่มีสิทธิ์เข้ามาแก้คลังหรือดูสถิติส่วนนี้</p>
+                <button type="button" onclick="closeAccessDeniedModal()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 12px; cursor: pointer;">
+                    รับทราบ
+                </button>
+            </div>
+        </div>
+
+        <!-- 🔑 หน้าต่างใส่รหัสผ่านแอดมิน -->
+        <div id="adminPasswordModal" class="pay-modal" style="display: none; z-index: 3000;">
+            <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 340px; width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popUpEffect 0.3s ease-out;">
+                <span class="pay-modal-close" onclick="cancelAdminSwitch()">&times;</span>
+                
+                <div style="width: 70px; height: 70px; background: #D8E7D7; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px; overflow: hidden;">
+                    <img src="https://lh3.googleusercontent.com/d/12rN-RYoQU7UtjkmC-_MMN2yBRUexeWro" alt="Matcha Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                
+                <h3 style="margin: 0 0 10px; color: #1E361E; font-size: 18px; font-weight: bold;">ยืนยันสิทธิ์เจ้าของร้าน</h3>
+                <p style="margin: 0 0 15px; color: #666; font-size: 13px;">กรุณากรอกรหัสผ่านแอดมิน</p>
+                
+                <input type="password" id="admin-password-input" placeholder="••••" style="width: 100%; height: 50px; text-align: center; font-size: 24px; letter-spacing: 8px; margin-bottom: 20px; border: 2px solid #ddd; border-radius: 12px; outline: none; box-sizing: border-box;">
+                
+                <button type="button" onclick="verifyAdminPassword()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 12px; cursor: pointer;">
+                    ยืนยันรหัสผ่าน
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 🍳 ออเดอร์กำลังทำ ================= -->
+        <div id="kitchen-view" class="page-view" style="flex-direction: column;">
+            <h2>🍳 รายการเครื่องดื่มกำลังทำ</h2>
+            <div class="content-box" style="margin-top: 20px;">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>เวลาสั่ง</th>
+                            <th>รายการแก้ว</th>
+                            <th>จำนวน</th>
+                            <th>สถานะเครื่องดื่ม</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kitchen-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= 📄 สมุดบัญชีคาเฟ่ ================= -->
+<div id="history-view" class="page-view" style="flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>📄 สมุดบัญชีคาเฟ่ (ดูยอดขายย้อนหลังทุกวัน)</h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="font-size: 13px; font-weight: bold;">เลือกดูวันที่:</label>
+            <!-- ช่องเลือกวันที่ (ถอด onchange ออก เพื่อป้องกันการกระพริบซ้ำ) -->
+<input type="date" id="report-filter-date" style="padding: 6px 14px; border-radius: 10px; border: 1.5px solid #c2d0bc; background: #f7f9f6; color: #2E4F2E; font-size: 13px; font-weight: 600; outline: none; cursor: pointer; transition: all 0.2s ease;">
+        </div>
+    </div>
+    <div class="content-box" style="margin-top: 10px;">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>เลขที่อ้างอิงบิล</th>
+                    <th>วันที่/เวลาเปิดบิล</th>
+                    <th>รายการเครื่องดื่ม</th>
+                    <th>ช่องทางชำระ</th>
+                    <th>ยอดรับสุทธิ</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body"></tbody>
+        </table>
+    </div>
+</div>
+
+        <!-- ================= 📦 ระบบคลังบาร์น้ำ ================= -->
+        <div id="stock-view" class="page-view" style="flex-direction: column;">
+            <h2>📦 ระบบคลังบาร์น้ำ </h2>
+            
+            <!-- ส่วนเพิ่มเมนูเครื่องดื่ม -->
+            <div class="content-box" style="margin-top: 20px;">
+                <h3 style="font-weight: 700; color: #2c3e2b; margin-bottom: 12px;">🔧 เพิ่มรายการเครื่องดื่ม</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <input type="text" id="stock-input-name" placeholder="ชื่อเครื่องดื่ม">
+                    <select id="stock-input-cat"></select>
+                    <input type="number" id="stock-input-price" placeholder="ราคาขาย (บาท)">
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="stock-input-img" class="file-upload-input" accept="image/*" onchange="updateUploadBtnText(this)">
+                        <span class="file-upload-btn" id="upload-btn-label">🖼️ อัปโหลดภาพเมนู</span>
+                    </div>
+                </div>
+                <button class="btn-success" style="margin-top: 15px;" onclick="addStockProduct()">เพิ่มรายการเข้าคลังบาร์น้ำ</button>
+            </div>
+
+            <!-- ตารางแสดงรายการเครื่องดื่ม -->
+            <div class="content-box">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อเมนู</th>
+                            <th>หมวดหมู่</th>
+                            <th>ราคาแก้ว</th>
+                            <th>จำนวนแก้วคงเหลือ</th>
+                            <th>ลบข้อมูล</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stock-table-body"></tbody>
+                </table>
+            </div>
+
+            <!-- 📊 ตารางแสดงปริมาณวัตถุดิบปัจจุบันที่มีอยู่ในคลังบาร์น้ำ -->
+            <div class="content-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="color: #1E361E; font-weight: bold; margin: 0;">📦 วัตถุดิบคลังในคลัง</h3>
+                    <button class="btn-success" style="padding: 6px 14px; font-size: 13px;" onclick="openAddMaterialModal()">+ เพิ่มวัตถุดิบใหม่</button>
+                </div>
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ชื่อวัตถุดิบ</th>
+                            <th>คงเหลือในคลัง</th>
+                            <th>หน่วยวัด</th>
+                            <th>จัดการคลัง</th>
+                            <th>ลบวัตถุดิบ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="raw-materials-table-body"></tbody>
+                </table>
+            </div>
+
+            <!-- ตารางคำนวณจำนวนแก้วคงเหลือตามสูตรจริง -->
+            <div class="content-box" style="margin-top: 20px; background: #ffffff; padding: 24px; border: 1px solid #e6ede5;">
+                <h3 style="color: #c65911; margin-bottom: 6px; font-weight: bold;">📊 ตารางคำนวณจำนวนแก้วคงเหลือ (คลังบาร์น้ำ)</h3>
+                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">*ระบบคำนวณอัตโนมัติจากปริมาณวัตถุดิบคลังปัจจุบัน เทียบกับสัดส่วนการชงจริงแก้วต่อแก้ว</p>
+                
+                <table class="custom-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                    <thead>
+                        <tr style="background-color: #fdf6f0;">
+                            <th style="border: 1px solid #e6ede5; padding: 12px; font-weight: bold; color: #c65911;">เมนูเครื่องดื่ม</th>
+                            <th style="border: 1px solid #e6ede5; padding: 12px; font-weight: bold; color: #c65911;">สูตรผสมที่ใช้ต่อแก้ว</th>
+                            <th style="border: 1px solid #e6ede5; padding: 12px; background-color: #fdf0e6; color: #c65911; font-weight: bold;">จำนวนแก้วคงเหลือชงได้จริง</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stock-cups-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 🧪 หน้าต่างป๊อปอัพสำหรับเพิ่มวัตถุดิบใหม่ -->
+        <div id="addMaterialModal" class="pay-modal" style="display: none;">
+            <div class="pay-modal-content" style="max-width: 400px; width: 90%;">
+                <span class="pay-modal-close" onclick="closeAddMaterialModal()">&times;</span>
+                <h3 style="text-align: center; margin-top: 0; color: #2c3e2b; font-weight: bold; font-size: 18px;">➕ เพิ่มวัตถุดิบใหม่</h3>
+                
+                <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">รหัสอ้างอิงภาษาอังกฤษ (เช่น milk, sugar):</label>
+                        <input type="text" id="mat-add-key" placeholder="เช่น espresso_beans">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">ชื่อวัตถุดิบภาษาไทย:</label>
+                        <input type="text" id="mat-add-name" placeholder="เช่น เมล็ดกาแฟคั่วเข้ม">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">จำนวนเริ่มต้นคงเหลือ:</label>
+                        <input type="number" id="mat-add-stock" placeholder="เช่น 1000">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">หน่วยวัด:</label>
+                        <input type="text" id="mat-add-unit" placeholder="เช่น กรัม, มล., ชิ้น">
+                    </div>
+                </div>
+
+                <button type="button" onclick="submitNewMaterial()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 20px;">
+                    💾 บันทึกวัตถุดิบ
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 📋 สูตรเครื่องดื่ม ================= -->
+        <div id="promo-view" class="page-view" style="flex-direction: column;">
+            <h2>📋 สูตรเครื่องดื่มประจำร้าน</h2>
+            
+            <div class="content-box" style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e6ede5;">
+                    <h3 style="margin: 0; font-weight: 700; color: #2c3e2b;">🔧 จัดการสูตรชงประจำบาร์</h3>
+                    <button class="btn-success" onclick="openRecipeModal(false)">+ เพิ่มสูตรใหม่</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; background: #fafcfa; padding: 16px; border-radius: 12px; border: 1px dashed #cbd5cb; height: 400px; box-sizing: border-box;">
+                        <div style="display: flex; gap: 8px; width: 100%;">
+                            <div style="flex: 1;">
+                                <input type="text" id="recipe-search" placeholder="🔍 ค้นหาชื่อเมนู..." oninput="filterRecipes()" style="padding: 8px 12px; font-size: 14px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <select id="recipe-filter-cat" onchange="filterRecipes()" style="padding: 8px 35px 8px 12px; font-size: 14px; width: 140px; min-width: auto; background-position: right 12px center; box-sizing: border-box;"></select>
+                        </div>
+
+                        <div class="flex flex-col gap-2 overflow-y-auto" id="recipe-menu-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; min-height: 0;"></div>
+                    </div>
+
+                    <div style="background-color: #ffffff; border: 1px solid #e6ede5; border-radius: 12px; padding: 22px; min-height: 400px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div id="recipe-detail-box">
+                            <p style="text-align: center; color: #888888; padding: 120px 0; font-size: 13px;">💡 เลือกเมนูด้านซ้ายเพื่อเรียกดูสูตรชงเครื่องดื่ม</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📝 หน้าต่างป๊อปอัพสำหรับ เพิ่ม/แก้ไข สูตรเครื่องดื่ม -->
+            <div id="recipeModal" class="pay-modal" style="display: none;">
+                <div class="pay-modal-content" style="max-width: 500px; width: 90%;">
+                    <span class="pay-modal-close" onclick="closeRecipeModal()">&times;</span>
+                    <h3 id="recipe-modal-title" style="text-align: center; margin-top: 0; color: #333; font-weight: bold; font-size: 18px;">เพิ่มสูตรเครื่องดื่มใหม่</h3>
+                    
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; padding-right: 5px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">เลือกเมนูในระบบบาร์น้ำ:</label>
+                            <select id="modal-recipe-product-id"></select>
+                        </div>
+
+                        <div style="background: #f4f7f3; padding: 12px; border-radius: 12px; border: 1px solid #cbd5cb;">
+                            <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: bold; color: #1E361E;">⚙️ ปริมาณวัตถุดิบที่ใช้จริงต่อ 1 แก้ว (ตัดสต็อกอัตโนมัติ):</label>
+                            <div id="recipe-ingredients-stock-inputs" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">🥛 ส่วนผสมหลัก (พิมพ์อธิบายชงจริง - 1 อย่างต่อบรรทัด):</label>
+                            <textarea id="modal-recipe-ingredients" rows="3"></textarea>
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">🧠 วิธีทำ (ระบุ 1 ขั้นตอนต่อ 1 บรรทัด):</label>
+                            <textarea id="modal-recipe-steps" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="saveRecipeData()" style="width: 100%; background-color: #2E4F2E; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 20px;">
+                        💾 บันทึกข้อมูลสูตร
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 📊 สถิติบาร์และยอดขาย ================= -->
+<div id="report-view" class="page-view" style="flex-direction: column;">
+    <!-- 🌿 เพิ่ม CSS เฉพาะกิจสำหรับปรับแต่งหน้าตาปฏิทิน Date Input ให้เป็นโทนเขียวมัทฉะ -->
+    <style>
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(27%) sepia(18%) saturate(668%) hue-rotate(65deg) brightness(92%) contrast(88%);
+        }
+        input[type="date"]:focus {
+            border-color: #2E4F2E !important;
+            box-shadow: 0 0 0 3px rgba(46, 79, 46, 0.15) !important;
+        }
+    </style>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2>📊 สถิติบาร์และยอดขาย (เลือกดูย้อนหลังได้ทุกวัน)</h2>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="font-size: 13px; font-weight: bold; color: #2E4F2E;">เลือกดูวันที่:</label>
+            
+            <!-- 🗓️ ช่องเลือกวันที่สไตล์มินิมอล โทนสีมัทฉะ -->
+            <input type="date" id="report-filter-date" onchange="updateBarAnalytics()" style="padding: 6px 14px; border-radius: 10px; border: 1.5px solid #c2d0bc; background: #f7f9f6; color: #2E4F2E; font-size: 13px; font-weight: 600; outline: none; cursor: pointer; transition: all 0.2s ease;">
+            
+            <!-- 📥 ปุ่มดาวน์โหลด Excel -->
+            <button onclick="exportReportToExcel()" style="padding: 6px 14px; background-color: #2E4F2E; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 13px; box-shadow: 0 2px 5px rgba(46, 79, 46, 0.1);">
+                📥 ดาวน์โหลด Excel
+            </button>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 15px;">
+        <div class="content-box" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 20px;">
+            <span style="font-size: 14px; color: #666666;">💰 ยอดขายรวมตามวันที่เลือก</span>
+            <span style="font-size: 28px; font-weight: bold; color: #2E4F2E; margin-top: 5px;">
+                <span id="stat-today-sales">0.00</span> <span style="font-size: 16px; font-weight: normal;">฿</span>
+            </span>
+        </div>
+        <div class="content-box" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 20px;">
+            <span style="font-size: 14px; color: #666666;">🥤 เครื่องดื่มที่ขายได้</span>
+            <span style="font-size: 28px; font-weight: bold; color: #1E361E; margin-top: 5px;">
+                <span id="stat-today-cups">0</span> <span style="font-size: 16px; font-weight: normal;">แก้ว</span>
+            </span>
+        </div>
+        <div class="content-box" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 20px;">
+            <span style="font-size: 14px; color: #666666;">💳 ช่องทางรับเงินหลัก</span>
+            <span style="font-size: 16px; font-weight: bold; color: #333333; margin-top: 12px; display: flex; gap: 10px;">
+                <span>เงินสด: <span id="stat-cash-count" style="color:#2E4F2E;">0</span> บิล</span>
+                <span>เงินโอน: <span id="stat-transfer-count" style="color:#2E4F2E;">0</span> บิล</span>
+            </span>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; margin-top: 20px;">
+        <div class="content-box" style="margin-bottom: 0;">
+            <h3 style="font-size: 16px; color: #1E361E; border-left: 3px solid #2E4F2E; padding-left: 8px; font-weight: 700;">🏆 อันดับเครื่องดื่มขายดีประจำวัน</h3>
+            <table class="custom-table" style="margin-top: 15px;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding-left: 15px;">ชื่อเมนู</th>
+                        <th>หมวดหมู่</th>
+                        <th>จำนวนที่ขายได้</th>
+                        <th>รวมยอดขาย</th>
+                    </tr>
+                </thead>
+                <tbody id="stat-top-products-body">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #888888; padding: 30px;">ยังไม่มีข้อมูลการขายในวันนี้</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="content-box" style="margin-bottom: 0;">
+            <h3 style="font-size: 16px; color: #1E361E; border-left: 3px solid #2E4F2E; padding-left: 8px; font-weight: 700;">📊 ยอดขายแยกตามหมวดหมู่</h3>
+            <div id="stat-category-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="text-align: center; color: #888888; padding: 40px 0;">เปิดบิลแรกเพื่อเริ่มคำนวณสัดส่วนบาร์น้ำ</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- ================= ⚙️ คุมร้านสไตล์เรา ================= -->
+        <div id="admin-view" class="page-view" style="flex-direction: column;">
+            <h2>⚙️ คุมร้านสไตล์เรา (Cafe Configuration & Management)</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                
+                <div class="content-box">
+                    <h3 style="color: #2E4F2E; font-weight: bold; border-left: 4px solid #2E4F2E; padding-left: 8px; margin-bottom: 15px;">🏠 1. ปรับแต่งหน้าร้าน & เวลาเปิดบาร์ (Bar Setup)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">ตั้งชื่อคาเฟ่</label>
+                            <input type="text" id="cfg-shop-name" placeholder="เช่น อยู่บ้านคาเฟ่">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">ที่อยู่</label>
+                            <input type="text" id="cfg-shop-address" placeholder="เช่น 123 ถ.มัทฉะ ต.ในเมือง อ.เมือง">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">เบอร์ติดต่อ / เลขพร้อมเพย์ร้าน</label>
+                            <input type="text" id="cfg-shop-phone" placeholder="เช่น 0891234567 หรือ เลขบัตร/เบอร์พร้อมเพย์">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">เวลาเปิดเครื่องชง</label>
+                                <input type="time" id="cfg-bar-open" value="07:00">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">เวลาปิดบาร์ประจำวัน</label>
+                                <input type="time" id="cfg-bar-close" value="17:00">
+                            </div>
+                        </div>
+                        <button class="btn-success" style="margin-top: 5px; width: 100%;" onclick="saveBarSetup()">💾 บันทึกการปรับแต่งหน้าร้าน</button>
+
+                        <hr style="border: 0; border-top: 1px dashed #d1d8d0; margin: 10px 0;">
+
+                        <!-- 🔑 ส่วนเปลี่ยนรหัสผ่านแอดมินที่เพิ่มเข้ามาใหม่ -->
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">🔑 เปลี่ยนรหัสผ่านแอดมิน</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <input type="password" id="cfg-old-admin-pass" placeholder="รหัสผ่านปัจจุบัน" style="width: 100%; padding: 8px; border: 1px solid #cbd5cb; border-radius: 8px; outline: none;">
+                                <input type="password" id="cfg-new-admin-pass" placeholder="รหัสผ่านใหม่ (เช่น 4 หลัก)" style="width: 100%; padding: 8px; border: 1px solid #cbd5cb; border-radius: 8px; outline: none;">
+                                <button type="button" class="btn-success" style="width: 100%; background-color: #3b4f3a;" onclick="updateAdminPassword()">🔒 อัปเดตรหัสผ่านใหม่</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="content-box">
+                    <h3 style="color: #1E361E; font-weight: bold; border-left: 4px solid #2E4F2E; padding-left: 8px; margin-bottom: 15px;">🥤 2. คลังเมนูเครื่องดื่ม & สูตรปรุง (Drink Lab)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">➕ เพิ่มหมวดหมู่</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="cfg-new-cat" placeholder="เช่น อิตาเลี่ยนโซดา, ชาสมุนไพร" style="flex: 1;">
+                                <button class="btn-success" style="padding: 0 20px;" onclick="addNewCategory()">เพิ่ม</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold; color: #555;">📋 รายการหมวดหมู่ปัจจุบันที่มีในร้าน:</label>
+                            <div style="max-height: 220px; overflow-y: auto; border: 1px solid #e6ede5; border-radius: 12px; background: #fafcfa; padding: 10px; display: flex; flex-direction: column; gap: 6px;" id="cfg-cat-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    <!-- ================= 🖨️ แม่แบบใบเสร็จสำหรับสั่งพิมพ์ Thermal Printer 80 มม. ================= -->
+    <div id="receipt-print-area">
+        <div style="text-align: center; margin-bottom: 8px;">
+            <img src="https://lh3.googleusercontent.com/d/12rN-RYoQU7UtjkmC-_MMN2yBRUexeWro" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: inline-block;" alt="Logo">
+        </div>
+        <div style="text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 2px;" id="pr-shop-name">อยู่บ้านคาเฟ่</div>
+        <div style="text-align: center; font-size: 11px; margin-bottom: 8px;" id="pr-shop-address">123 ถ.มัทฉะ ต.ในเมือง อ.เมือง</div>
+        <div style="border-bottom: 1px dashed #000; margin-bottom: 6px;"></div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
+            <span>เลขที่บิล: <span id="pr-bill-id">-</span></span>
+            <span>เวลา: <span id="pr-time">-</span></span>
+        </div>
+        <div style="border-bottom: 1px dashed #000; margin-bottom: 6px;"></div>
+        
+        <div id="pr-items-container" style="font-size: 12px; margin-bottom: 8px;"></div>
+
+        <div style="border-bottom: 1px dashed #000; margin-bottom: 6px;"></div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+            <span>ยอดเงินสุทธิ:</span>
+            <span><span id="pr-total">0.00</span> บาท</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+            <span>รับเงิน:</span>
+            <span><span id="pr-cash-received">0.00</span> บาท</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+            <span>เงินทอน:</span>
+            <span><span id="pr-cash-change">0.00</span> บาท</span>
+        </div>
+
+        <div style="border-bottom: 1px dashed #000; margin-top: 8px; margin-bottom: 10px;"></div>
+        <div style="text-align: center; font-size: 11px;">🙏 ขอบคุณที่ใช้บริการ "อยู่บ้านคาเฟ่" 💚</div>
+        <div style="text-align: center; font-size: 10px; margin-top: 4px;">Yubancafe POS System</div>
+    </div>
+
+    <!-- JavaScript ควบคุมระบบการทำงาน -->
+    <script>
+        let SHOP_PROMPTPAY_NUMBER = "1710101209420"; 
+        let SHOP_NAME = "อยู่บ้านคาเฟ่";
+        let SHOP_ADDRESS = "120/5 ม.4 ต.งิ้วงาม อ.เมือง จ.พิษณุโลก";
+        let BAR_OPEN_TIME = "08:00";
+        let BAR_CLOSE_TIME = "18:00";
+        let billCounter = 1; 
+
+        let currentUserRole = 'staff'; 
+
+        let categories = ["กาแฟ", "ชา", "นม", "โซดา", "สมูทตี้ปกติ", "สมูทตี้สุขภาพ"];
+        let currentCategory = "กาแฟ";
+        let paymentMethod = "cash"; 
+        let lastPrintedOrder = null; 
+
+        let rawMaterials = {
+            espresso_beans: { name: "เม็ดกาแฟคั่ว", stock: 1000, unit: "กรัม" },
+            milk: { name: "นมสดแท้", stock: 2000, unit: "มล." },
+            condensed_milk: { name: "นมข้นหวาน", stock: 1000, unit: "มล." },
+            evaporated_milk: { name: "นมข้นจืด", stock: 1000, unit: "มล." },
+            yuzu_syrup: { name: "ไซรัปยูสุ", stock: 500, unit: "มล." },
+            thai_tea_powder: { name: "ผงชาไทย", stock: 600, unit: "กรัม" },
+            matcha_powder: { name: "ผงมัทฉะอุจิ", stock: 300, unit: "กรัม" },
+            water: { name: "น้ำกรอง", stock: 10000, unit: "มล." }
+        };
+
+        let products = [
+            { id: 1, name: "Yuzu Americano", price: 110, category: "กาแฟ", emoji: "☕", recipe: { espresso_beans: 18, yuzu_syrup: 30, water: 90 } },
+            { id: 2, name: "Premium Espresso", price: 80, category: "กาแฟ", emoji: "☕", recipe: { espresso_beans: 18, condensed_milk: 20, evaporated_milk: 10 } },
+            { id: 3, name: "Hot Latte Art", price: 95, category: "กาแฟ", emoji: "☕", recipe: { espresso_beans: 18, milk: 150 } },
+            { id: 4, name: "Uji Matcha Latte", price: 95, category: "ชา", emoji: "🍵", recipe: { matcha_powder: 5, water: 30, milk: 120 } },
+            { id: 5, name: "Traditional Thai Tea", price: 75, category: "ชา", emoji: "🥤", recipe: { thai_tea_powder: 15, condensed_milk: 25, evaporated_milk: 15 } },
+            { id: 6, name: "Choco Mint Fudge", price: 90, category: "นม", emoji: "🥛", recipe: { milk: 150 } },
+            { id: 7, name: "Honey Lemon Soda", price: 65, category: "โซดา", emoji: "🍹", recipe: { water: 120 } },
+            { id: 8, name: "Berry Blend Smoothie", price: 115, category: "สมูทตี้ปกติ", emoji: "🍓", recipe: { milk: 100 } },
+            { id: 9, name: "Avocado Almond Mix", price: 135, category: "สมูทตี้สุขภาพ", emoji: "🥑", recipe: { milk: 100 } }
+        ];
+
+        let cart = [];
+        let kitchenOrders = [];
+        let invoiceHistory = [];
+
+        let recipesData = {
+            1: {
+                name: "Yuzu Americano",
+                emoji: "☕",
+                ingredients: ["กาแฟเอสเปรสโซ่ 2 ช็อต (60 มล.)", "ไซรัปส้มยูสุ 30 มล.", "น้ำเปล่า 90 มล.", "น้ำแข็งเต็มแก้ว"],
+                steps: ["สกัดช็อตกาแฟเอสเปรสโซ่พักไว้ก่อน", "ผสมไซรัปส้มยูสุก็กับน้ำเปล่าให้เข้ากันในแก้วเสิร์ฟ", "เติมน้ำแข็งให้เต็มแก้ว จากนั้นค่อย ๆ เทช็อตกาแฟท็อปไว้ด้านบน"]
+            },
+            2: {
+                name: "Premium Espresso",
+                emoji: "☕",
+                ingredients: ["กาแฟเอสเปรสโซ่ 2 ช็อต (60 มล.)", "นมข้นหวาน 20 มล.", "นมข้นจืด 10 มล.", "น้ำแข็งเต็มแก้ว"],
+                steps: ["สกัดกาแฟให้ได้ 2 ช็อตลงในแก้วผสม", "ใส่นมข้นหวานและนมข้นจืดลงไป จากนั้นคนให้ส่วนผสมละลายเข้ากัน เทใส่แก้วน้ำแข็งพร้อมเสิร์ฟ"]
+            },
+            3: {
+                name: "Hot Latte Art",
+                emoji: "☕",
+                ingredients: ["กาแฟเอสเปรสโซ่ 1 ช็อต (30 มล.)", "นมสดสตรีมร้อน 150 มล.", "ฟองนมหนาละเอียด"],
+                steps: ["สกัดช็อตเอสเปรสโซ่ลงแก้วเสิร์ฟ", "สตรีมนมสดให้ร้อนและเกิดฟองนมเนื้อเนียน (อุณหภูมิประมาณ 60-65°C)", "เทนมร้อนสตรีมลงในแก้วกาแฟพร้อมวาดลวดลายลาเต้อาร์ต"]
+            },
+            4: {
+                name: "Uji Matcha Latte",
+                emoji: "🍵",
+                ingredients: ["ผงมัทฉะอุจิแท้ 5 กรัม", "น้ำร้อน 30 มล.", "นมสดแท้ 120 มล.", "น้ำเชื่อมหรือไซรัป 15 มล."],
+                steps: ["ละลายผงมัทฉะในน้ำร้อนด้วยแปรงตีชาไม้ไผ่จนไม่เหลือผงจับตัวเป็นก้อน", "ผสมนมสดและน้ำเชื่อมเข้าด้วยกันในแก้วเสิร์ฟที่ใส่นม", "เทน้ำมัทฉะเข้มข้นลงด้านบนให้แยกชั้นสีสวยงาม"]
+            }
+        };
+
+        let currentSelectedRecipeId = 1; 
+
+        // 🔄 โหลดข้อมูลที่บันทึกไว้ใน localStorage เมื่อเปิดเว็บ เพื่อไม่ให้ข้อมูลหายตอนรีเฟรช
+        function loadDataFromStorage() {
+            if (localStorage.getItem('cozy_cafe_invoices')) {
+                invoiceHistory = JSON.parse(localStorage.getItem('cozy_cafe_invoices'));
+            }
+            if (localStorage.getItem('cozy_cafe_raw_materials')) {
+                rawMaterials = JSON.parse(localStorage.getItem('cozy_cafe_raw_materials'));
+            }
+            if (localStorage.getItem('cozy_cafe_products')) {
+                products = JSON.parse(localStorage.getItem('cozy_cafe_products'));
+            }
+            if (localStorage.getItem('cozy_cafe_bill_counter')) {
+                billCounter = parseInt(localStorage.getItem('cozy_cafe_bill_counter'));
+            }
+            if (localStorage.getItem('cozy_cafe_recipes')) {
+                recipesData = JSON.parse(localStorage.getItem('cozy_cafe_recipes'));
+            }
+        }
+
+        // 💾 บันทึกข้อมูลลง localStorage
+        function saveDataToStorage() {
+            localStorage.setItem('cozy_cafe_invoices', JSON.stringify(invoiceHistory));
+            localStorage.setItem('cozy_cafe_raw_materials', JSON.stringify(rawMaterials));
+            localStorage.setItem('cozy_cafe_products', JSON.stringify(products));
+            localStorage.setItem('cozy_cafe_bill_counter', billCounter);
+            localStorage.setItem('cozy_cafe_recipes', JSON.stringify(recipesData));
+        }
+
+        window.onload = function() {
+            loadDataFromStorage();
+            
+            // ตั้งค่าวันที่ปัจจุบันให้ input date คลาดเคลื่อนไม่ได้
+            const todayStr = new Date().toISOString().split('T')[0];
+            if(document.getElementById('history-filter-date')) document.getElementById('history-filter-date').value = todayStr;
+            if(document.getElementById('report-filter-date')) document.getElementById('report-filter-date').value = todayStr;
+
+            renderCategoryBar();
+            renderMenu();
+        };
+
+        function handleRoleChange(selectedRole) {
+            if (selectedRole === 'admin') {
+                document.getElementById('adminPasswordModal').style.display = 'flex';
+                document.getElementById('admin-password-input').value = '';
+                setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+            } else {
+                currentUserRole = 'staff';
+                document.getElementById('current-role-badge').innerText = "👨‍🍳 พนักงานหน้าบาร์ (Barista)";
+                document.getElementById('current-role-badge').style.background = "#2E4F2E";
+                document.getElementById('role-switcher').value = 'staff';
+            }
+        }
+
+        function verifyAdminPassword() {
+            const pwd = document.getElementById('admin-password-input').value;
+            if (pwd === "16071961") {
+                currentUserRole = 'admin';
+                document.getElementById('current-role-badge').innerText = "👑 เจ้าของร้าน / แอดมิน (Admin)";
+                document.getElementById('current-role-badge').style.background = "#2E4F2E";
+                document.getElementById('adminPasswordModal').style.display = 'none';
+                switchPage('admin-view', document.getElementById('nav-admin'));
+            } else {
+                alert("❌ รหัสผ่านแอดมินไม่ถูกต้อง!");
+            }
+        }
+
+        function cancelAdminSwitch() {
+            document.getElementById('adminPasswordModal').style.display = 'none';
+            document.getElementById('role-switcher').value = currentUserRole;
+        }
+
+        function switchPage(pageId, element) {
+            const restrictedPages = ['stock-view', 'report-view', 'admin-view'];
+            if (restrictedPages.includes(pageId) && currentUserRole !== 'admin') {
+                document.getElementById('accessDeniedModal').style.display = 'flex';
+                return; 
+            }
+
+            document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active-view'));
+            document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active-view');
+            if(element) element.classList.add('active');
+
+            if (pageId === 'pos-view') { renderCategoryBar(); renderMenu(); checkBarTimeStatus(); }
+            if (pageId === 'kitchen-view') { renderKitchen(); }
+            if (pageId === 'history-view') { renderHistory(); }
+            if (pageId === 'stock-view') { renderStockCategoryOptions(); renderStock(); renderRawMaterialsTable(); renderStockCupsTable(); }
+            if (pageId === 'promo-view') { renderRecipeCategoryOptions(); renderRecipeSidebar(); renderRecipeDetail(); }
+            if (pageId === 'report-view') { updateBarAnalytics(); }
+            if (pageId === 'admin-view') { loadBarConfigurationInputs(); }
+        }
+
+        function closeAccessDeniedModal() {
+            document.getElementById('accessDeniedModal').style.display = 'none';
+        }
+
+        function loadBarConfigurationInputs() {
+            document.getElementById('cfg-shop-name').value = SHOP_NAME;
+            document.getElementById('cfg-shop-address').value = SHOP_ADDRESS;
+            document.getElementById('cfg-shop-phone').value = SHOP_PROMPTPAY_NUMBER;
+            document.getElementById('cfg-bar-open').value = BAR_OPEN_TIME;
+            document.getElementById('cfg-bar-close').value = BAR_CLOSE_TIME;
+            renderAdminCategoryList();
+        }
+
+        function saveBarSetup() {
+            SHOP_NAME = document.getElementById('cfg-shop-name').value.trim() || "อยู่บ้านคาเฟ่";
+            SHOP_ADDRESS = document.getElementById('cfg-shop-address').value.trim() || "ที่อยู่หัวบิล";
+            SHOP_PROMPTPAY_NUMBER = document.getElementById('cfg-shop-phone').value.trim() || "1710101209420";
+            BAR_OPEN_TIME = document.getElementById('cfg-bar-open').value;
+            BAR_CLOSE_TIME = document.getElementById('cfg-bar-close').value;
+
+            document.getElementById('sidebar-logo').innerHTML = `<img src="https://lh3.googleusercontent.com/d/12rN-RYoQU7UtjkmC-_MMN2yBRUexeWro" class="logo-img" alt="Logo"> ${SHOP_NAME}`;
+            alert("🏠 บันทึกการตั้งค่าตัวตนร้านและเวลาบริการบาร์เรียบร้อยแล้ว!");
+        }
+
+        function renderAdminCategoryList() {
+            const listEl = document.getElementById('cfg-cat-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            categories.forEach((cat, idx) => {
+                listEl.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 6px 12px; border-radius: 8px; border: 1px solid #ebf3eb; font-size: 13px;">
+                        <span>📁 <strong>${cat}</strong></span>
+                        <button style="color: #e74c3c; font-weight: bold; cursor: pointer;" onclick="deleteCategory(${idx})">❌</button>
+                    </div>`;
+            });
+        }
+
+        function addNewCategory() {
+            const input = document.getElementById('cfg-new-cat');
+            const val = input.value.trim();
+            if (!val) return alert("กรุณากรอกชื่อหมวดหมู่ที่ต้องการเพิ่มด้วยครับ");
+            if (categories.includes(val)) return alert("มีหมวดหมู่นี้ในระบบบาร์น้ำอยู่แล้วครับ");
+            
+            categories.push(val);
+            input.value = '';
+            renderAdminCategoryList();
+        }
+
+        function deleteCategory(idx) {
+            const catName = categories[idx];
+            if (confirm(`คุณยืนยันที่จะลบหมวดหมู่ "${catName}" ใช่หรือไม่?`)) {
+                categories.splice(idx, 1);
+                if (currentCategory === catName) {
+                    currentCategory = categories[0] || "";
+                }
+                renderAdminCategoryList();
+            }
+        }
+
+        function checkBarTimeStatus() {
+            const banner = document.getElementById('bar-status-banner');
+            if (!banner) return;
+        }
+
+        function renderStockCategoryOptions() {
+            const select = document.getElementById('stock-input-cat');
+            if (!select) return;
+            select.innerHTML = '';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function renderRecipeCategoryOptions() {
+            const select = document.getElementById('recipe-filter-cat');
+            if (!select) return;
+            const currentVal = select.value || "ทั้งหมด";
+            select.innerHTML = '<option value="ทั้งหมด">ทั้งหมด</option>';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            if (categories.includes(currentVal) || currentVal === "ทั้งหมด") {
+                select.value = currentVal;
+            }
+        }
+
+        function renderCategoryBar() {
+            const catBox = document.getElementById('category-box');
+            if(!catBox) return;
+            catBox.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `cat-btn ${cat === currentCategory ? 'active' : ''}`;
+                btn.innerText = cat;
+                btn.onclick = () => { currentCategory = cat; renderCategoryBar(); renderMenu(); };
+                catBox.appendChild(btn);
+            });
+        }
+
+        function renderMenu() {
+            const menuGrid = document.getElementById('menu-grid');
+            if(!menuGrid) return;
+            menuGrid.innerHTML = '';
+            const filtered = products.filter(p => p.category === currentCategory);
+
+            filtered.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'menu-card';
+                card.onclick = () => addToCart(product.id);
+                
+                let mediaHTML = `<div class="menu-img">${product.emoji || '🥤'}</div>`;
+                if (product.image) {
+                    mediaHTML = `<div class="menu-img-container"><img src="${product.image}" class="menu-custom-img" alt="${product.name}"></div>`;
+                }
+
+                const remainingCups = calculatePossibleCups(product.recipe);
+                const badgeColor = remainingCups === 0 ? 'color: #e74c3c; font-weight: bold;' : 'color: #2E4F2E;';
+
+                card.innerHTML = `
+                    ${mediaHTML}
+                    <div class="menu-info">
+                        <div class="menu-name">${product.name}</div>
+                        <div class="menu-price">${product.price} ฿</div>
+                        <div style="font-size: 11px; margin-top: 4px; ${badgeColor}">
+                            ${remainingCups === 0 ? '⚠️ หมดชั่วคราว' : `ชงได้อีก ${remainingCups} แก้ว`}
+                        </div>
+                    </div>
+                `;
+                menuGrid.appendChild(card);
+            });
+        }
+
+        function calculatePossibleCups(recipe) {
+            if (!recipe || Object.keys(recipe).length === 0) return 99;
+            let possibleCups = [];
+            for (let matKey in recipe) {
+                const requiredAmt = recipe[matKey];
+                const availableStock = rawMaterials[matKey] ? rawMaterials[matKey].stock : 0;
+                if (requiredAmt > 0) {
+                    possibleCups.push(Math.floor(availableStock / requiredAmt));
+                }
+            }
+            return possibleCups.length > 0 ? Math.min(...possibleCups) : 99;
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const remainingCups = calculatePossibleCups(product.recipe);
+            const targetItem = cart.find(item => item.id === productId);
+            const currentCartQty = targetItem ? targetItem.qty : 0;
+
+            if (remainingCups <= currentCartQty) {
+                alert(`ขออภัยครับ วัตถุดิบในการชง ${product.name} มีไม่พอสำหรับสั่งเพิ่มแล้วครับ`);
+                return;
+            }
+
+            if (targetItem) {
+                targetItem.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartBox = document.getElementById('cart-box');
+            if(!cartBox) return;
+            if (cart.length === 0) {
+                cartBox.innerHTML = '<p style="text-align: center; color: #666666; margin-top: 20px;">ยังไม่มีรายการเครื่องดื่ม</p>';
+                document.getElementById('summary-subtotal').innerText = '0.00';
+                document.getElementById('btn-pay-amount').innerText = '0.00';
+                return;
+            }
+
+            cartBox.innerHTML = '';
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.qty;
+                cartBox.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <span><strong>${item.name}</strong> x${item.qty}</span>
+                            <span>${(item.price * item.qty).toFixed(2)} ฿</span>
+                        </div>
+                        <button class="btn-remove-item" onclick="removeFromCart(${item.id})">❌</button>
+                    </div>`;
+            });
+
+            document.getElementById('summary-subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('btn-pay-amount').innerText = subtotal.toFixed(2);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCart();
+        }
+
+        function openPaymentModal() {
+    if (cart.length === 0) {
+        alert("กรุณาเลือกรายการเครื่องดื่มลงในตะกร้าก่อนชำระเงินครับ!");
+        return;
+    }
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    document.getElementById('modal-total-amount').innerText = total.toFixed(2);
+    document.getElementById('transfer-amount-display').innerText = total.toFixed(2);
+    
+    document.getElementById('receipt-shop-name').innerText = SHOP_NAME;
+    document.getElementById('receipt-shop-address').innerText = SHOP_ADDRESS;
+
+    // --- ส่วนที่แก้ไข: เรียกใช้ฟังก์ชันสร้าง Payload พร้อมเพย์แบบล็อคยอด ---
+    const promptpayId = SHOP_PROMPTPAY_NUMBER; // '1710101209420'
+    const amountStr = total.toFixed(2);
+    
+    const payload = generatePromptPayPayload(promptpayId, amountStr);
+    const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payload)}`;
+    
+    document.getElementById('promptpay-qr-img').src = qrImgUrl;
+    // -------------------------------------------------------------
+
+    togglePayOption('cash');
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function togglePayOption(method) {
+            paymentMethod = method;
+            const cashBtn = document.getElementById('select-cash-btn');
+            const transferBtn = document.getElementById('select-transfer-btn');
+            const cashSec = document.getElementById('modal-cash-section');
+            const transferSec = document.getElementById('modal-transfer-section');
+
+            if (method === 'cash') {
+                cashBtn.classList.add('active');
+                transferBtn.classList.remove('active');
+                cashSec.style.display = 'block';
+                transferSec.style.display = 'none';
+                setTimeout(() => document.getElementById('cash-received-input').focus(), 100);
+            } else {
+                transferBtn.classList.add('active');
+                cashBtn.classList.remove('active');
+                transferSec.style.display = 'block';
+                cashSec.style.display = 'none';
+            }
+        }
+
+        function calculateChange() {
+            const total = parseFloat(document.getElementById('summary-subtotal').innerText) || 0;
+            const received = parseFloat(document.getElementById('cash-received-input').value) || 0;
+            const change = received - total;
+            document.getElementById('cash-change-display').innerText = change >= 0 ? change.toFixed(2) : '0.00';
+        }
+
+        // 💳 ระบบยืนยันการชำระเงินและบันทึกลงสมุดบัญชี/สต็อก
+        function submitPaymentOrder() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let cashReceived = total;
+            let cashChange = 0;
+
+            if (paymentMethod === 'cash') {
+                cashReceived = parseFloat(document.getElementById('cash-received-input').value) || 0;
+                if (cashReceived < total) {
+                    alert("ยอดเงินที่ได้รับน้อยกว่ายอดชำระสุทธิ กรุณาตรวจสอบอีกครั้ง!");
+                    return;
+                }
+                cashChange = cashReceived - total;
+            }
+
+            // ตัดสต็อกวัตถุดิบจริงตามสูตรของแก้วที่สั่ง
+            cart.forEach(cartItem => {
+                const prod = products.find(p => p.id === cartItem.id);
+                if (prod && prod.recipe) {
+                    for (let matKey in prod.recipe) {
+                        const usagePerCup = prod.recipe[matKey];
+                        const totalUsage = usagePerCup * cartItem.qty;
+                        if (rawMaterials[matKey]) {
+                            rawMaterials[matKey].stock = Math.max(0, rawMaterials[matKey].stock - totalUsage);
+                        }
+                    }
+                }
+            });
+
+            // สร้างออเดอร์ส่งเข้าครัว
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toISOString().split('T')[0];
+
+            cart.forEach(item => {
+                kitchenOrders.push({
+                    time: timeStr,
+                    name: item.name,
+                    qty: item.qty,
+                    status: 'กำลังทำ'
+                });
+            });
+            document.getElementById('kitchen-badge').innerText = kitchenOrders.length;
+
+            // บันทึกประวัติบิลลงสมุดบัญชี (เชื่อมโยง Excel) - เปลี่ยนเลขอ้างอิงจาก B- เป็น YB- ตามต้องการ
+            const billIdCode = `YB-${String(billCounter).padStart(4, '0')}`;
+            const itemNamesSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+
+            const invoiceRecord = {
+                billId: billIdCode,
+                dateStr: dateStr,
+                timestamp: `${dateStr} ${timeStr}`,
+                time: timeStr,
+                items: itemNamesSummary,
+                method: paymentMethod,
+                total: total.toFixed(2),
+                received: cashReceived.toFixed(2),
+                change: cashChange.toFixed(2),
+                cartDetails: [...cart]
+            };
+
+            invoiceHistory.unshift(invoiceRecord);
+            billCounter++;
+            lastPrintedOrder = invoiceRecord;
+
+            saveDataToStorage();
+
+            // ล้างตะกร้าและปิด Modal
+            cart = [];
+            updateCart();
+            closePaymentModal();
+
+            // แสดงหน้าต่างสำเร็จ
+            document.getElementById('success-modal-message').innerHTML = `ออกบิล <strong>${billIdCode}</strong> สำเร็จเรียบร้อย!<br>ยอดรวม ${total.toFixed(2)} บาท`;
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        // 🖨️ ฟังก์ชันพิมพ์ใบเสร็จผ่าน Thermal Printer
+        function printReceipt() {
+            if (!lastPrintedOrder) return;
+
+            document.getElementById('pr-shop-name').innerText = SHOP_NAME;
+            document.getElementById('pr-shop-address').innerText = SHOP_ADDRESS;
+            document.getElementById('pr-bill-id').innerText = lastPrintedOrder.billId;
+            document.getElementById('pr-time').innerText = lastPrintedOrder.timestamp;
+            document.getElementById('pr-total').innerText = lastPrintedOrder.total;
+            document.getElementById('pr-cash-received').innerText = lastPrintedOrder.received;
+            document.getElementById('pr-cash-change').innerText = lastPrintedOrder.change;
+
+            let itemsHtml = '';
+            lastPrintedOrder.cartDetails.forEach(item => {
+                itemsHtml += `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                        <span>${item.name} x${item.qty}</span>
+                        <span>${(item.price * item.qty).toFixed(2)}</span>
+                    </div>`;
+            });
+            document.getElementById('pr-items-container').innerHTML = itemsHtml;
+
+            window.print();
+        }
+
+        function renderKitchen() {
+            const body = document.getElementById('kitchen-table-body');
+            if(!body) return;
+            body.innerHTML = kitchenOrders.length === 0 ? '<tr><td colspan="5" style="text-align:center;">ยังไม่มีคิวเครื่องดื่ม</td></tr>' : '';
+            kitchenOrders.forEach((order, index) => {
+                body.innerHTML += `
+                    <tr>
+                        <td>${order.time}</td>
+                        <td><strong>${order.name}</strong></td>
+                        <td>${order.qty} แก้ว</td>
+                        <td style="color:#2E4F2E; font-weight:bold;">${order.status}</td>
+                        <td><button class="btn-success" onclick="finishOrder(${index})">✅ เสิร์ฟแล้ว</button></td>
+                    </tr>`;
+            });
+        }
+
+        function finishOrder(index) {
+            kitchenOrders.splice(index, 1);
+            renderKitchen();
+            document.getElementById('kitchen-badge').innerText = kitchenOrders.length;
+        }
+
+        // 📄 แสดงข้อมูลในสมุดบัญชีตามวันที่ที่เลือก (ดูย้อนหลังได้ทุกวัน)
+        function renderHistory() {
+            const body = document.getElementById('history-table-body');
+            const filterDateInput = document.getElementById('history-filter-date');
+            if(!body) return;
+
+            let selectedDate = filterDateInput ? filterDateInput.value : new Date().toISOString().split('T')[0];
+            
+            // กรองบิลตามวันที่ที่เลือก
+            const filteredHistory = invoiceHistory.filter(inv => inv.dateStr === selectedDate);
+
+            body.innerHTML = filteredHistory.length === 0 ? `<tr><td colspan="5" style="text-align:center; color:#888; padding:30px;">ไม่มีรายการขายในวันที่ ${selectedDate}</td></tr>` : '';
+            
+            filteredHistory.forEach(inv => {
+                body.innerHTML += `
+                    <tr>
+                        <td><strong>${inv.billId}</strong></td>
+                        <td>${inv.timestamp}</td>
+                        <td>${inv.items}</td>
+                        <td>${inv.method === 'cash' ? 'เงินสด' : 'เงินโอน'}</td>
+                        <td style="color:#1E361E; font-weight:bold;">${inv.total} ฿</td>
+                    </tr>`;
+            });
+        }
+
+        // 📥 ฟังก์ชันดาวน์โหลดข้อมูลยอดขายลงไฟล์ Excel (CSV)
+        function exportToExcel() {
+            if (invoiceHistory.length === 0) {
+                alert("ยังไม่มีข้อมูลยอดขายในระบบสำหรับส่งออกครับ!");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // BOM สำหรับรองรับภาษาไทยใน Excel
+            csvContent += "เลขที่อ้างอิงบิล,วันที่,เวลา,รายการเครื่องดื่ม,ช่องทางชำระ,ยอดรับสุทธิ\n";
+
+            invoiceHistory.forEach(inv => {
+                let itemsClean = inv.items.replace(/,/g, " | "); // ป้องกันคอมม่าชนรูปแบบ CSV
+                csvContent += `"${inv.billId}","${inv.dateStr}","${inv.time}","${itemsClean}","${inv.method === 'cash' ? 'เงินสด' : 'เงินโอน'}","${inv.total}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Cafe_Sales_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function renderRawMaterialsTable() {
+            const body = document.getElementById('raw-materials-table-body');
+            if(!body) return;
+            body.innerHTML = '';
+            for (let key in rawMaterials) {
+                const mat = rawMaterials[key];
+                body.innerHTML += `
+                    <tr>
+                        <td><strong>${mat.name}</strong></td>
+                        <td>
+                            <input type="number" id="mat-stock-${key}" value="${mat.stock}" style="width: 100px; text-align: center; padding: 4px;" onchange="updateRawMaterialStock('${key}', this.value)">
+                        </td>
+                        <td>
+                            <input type="text" id="mat-unit-${key}" value="${mat.unit}" style="width: 80px; text-align: center; padding: 4px;" onchange="updateRawMaterialUnit('${key}', this.value)">
+                        </td>
+                        <td>
+                            <button class="btn-success" style="padding: 4px 10px; font-size: 12px;" onclick="addQuickStock('${key}', 500)">+500</button>
+                        </td>
+                        <td>
+                            <button class="btn-stock-delete" style="padding: 4px 8px; font-size: 12px;" onclick="deleteRawMaterial('${key}')">❌ ลบ</button>
+                        </td>
+                    </tr>`;
+            }
+        }
+
+        function updateRawMaterialStock(key, value) {
+            const newVal = parseFloat(value);
+            if (!isNaN(newVal) && newVal >= 0) {
+                rawMaterials[key].stock = newVal;
+                saveDataToStorage();
+                renderRawMaterialsTable();
+                renderStock(); 
+                renderStockCupsTable();
+                renderMenu();
+            }
+        }
+
+        function updateRawMaterialUnit(key, value) {
+            const newUnit = value.trim();
+            if (newUnit) {
+                rawMaterials[key].unit = newUnit;
+                saveDataToStorage();
+                renderRawMaterialsTable();
+                renderStock(); 
+                renderStockCupsTable();
+            }
+        }
+
+        function addQuickStock(key, amt) {
+            rawMaterials[key].stock += amt;
+            saveDataToStorage();
+            renderRawMaterialsTable();
+            renderStock(); 
+            renderStockCupsTable();
+            renderMenu();
+        }
+
+        function openAddMaterialModal() {
+            document.getElementById('mat-add-key').value = '';
+            document.getElementById('mat-add-name').value = '';
+            document.getElementById('mat-add-stock').value = '';
+            document.getElementById('mat-add-unit').value = '';
+            document.getElementById('addMaterialModal').style.display = 'flex';
+        }
+
+        function closeAddMaterialModal() {
+            document.getElementById('addMaterialModal').style.display = 'none';
+        }
+
+        function submitNewMaterial() {
+            const key = document.getElementById('mat-add-key').value.trim();
+            const name = document.getElementById('mat-add-name').value.trim();
+            const stock = parseFloat(document.getElementById('mat-add-stock').value);
+            const unit = document.getElementById('mat-add-unit').value.trim();
+
+            if (!key || !name || isNaN(stock) || !unit) {
+                return alert("กรุณากรอกรายละเอียดของวัตถุดิบใหม่ให้ครบถ้วนก่อนครับ!");
+            }
+
+            if (rawMaterials[key]) {
+                return alert("มีวัตถุดิบรหัสคีย์นี้อยู่แล้วในระบบ กรุณาใช้รหัสอื่นครับ!");
+            }
+
+            rawMaterials[key] = { name: name, stock: stock, unit: unit };
+            saveDataToStorage();
+
+            closeAddMaterialModal();
+            renderRawMaterialsTable();
+            renderStock();
+            renderStockCupsTable();
+            renderMenu();
+
+            document.getElementById('add-material-success-message').innerHTML = `เพิ่มวัตถุดิบ <strong>"${name}"</strong><br>เข้าสู่ระบบคลังเรียบร้อยครับ!`;
+            document.getElementById('addMaterialSuccessModal').style.display = 'flex';
+        }
+
+        function closeAddMaterialSuccessModal() {
+            document.getElementById('addMaterialSuccessModal').style.display = 'none';
+        }
+
+        let materialKeyToDelete = null;
+
+        function deleteRawMaterial(key) {
+            if (!rawMaterials[key]) return;
+            materialKeyToDelete = key;
+            document.getElementById('delete-material-name').innerText = rawMaterials[key].name;
+            document.getElementById('btn-confirm-delete-material').onclick = executeDeleteRawMaterial;
+            document.getElementById('deleteMaterialConfirmModal').style.display = 'flex';
+        }
+
+        function closeDeleteMaterialModal() {
+            document.getElementById('deleteMaterialConfirmModal').style.display = 'none';
+            materialKeyToDelete = null;
+        }
+
+        function executeDeleteRawMaterial() {
+            if (materialKeyToDelete !== null && rawMaterials[materialKeyToDelete]) {
+                products.forEach(p => {
+                    if (p.recipe && p.recipe[materialKeyToDelete]) {
+                        delete p.recipe[materialKeyToDelete];
+                    }
+                });
+                delete rawMaterials[materialKeyToDelete];
+                saveDataToStorage();
+                renderRawMaterialsTable();
+                renderStock();
+                renderStockCupsTable();
+                renderMenu();
+                closeDeleteMaterialModal();
+            }
+        }
+
+        function renderStock() {
+            const body = document.getElementById('stock-table-body');
+            if(!body) return;
+            body.innerHTML = '';
+            products.forEach(prod => {
+                const remainingCups = calculatePossibleCups(prod.recipe);
+                const badgeColor = remainingCups <= 3 ? '#ec5252' : '#2E4F2E';
+                
+                body.innerHTML += `
+                    <tr>
+                        <td><strong>${prod.name}</strong></td>
+                        <td>${prod.category}</td>
+                        <td>${prod.price} ฿</td>
+                        <td style="font-weight: bold; color: ${badgeColor};">${remainingCups > 50 ? 'พร้อมขาย' : `ชงได้อีก ${remainingCups} แก้ว`}</td>
+                        <td>
+                            <button class="btn-stock-delete" onclick="deleteStockItem(${prod.id})">❌ ลบรายการ</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderStockCupsTable() {
+            const tbody = document.getElementById('stock-cups-table-body');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            products.forEach(prod => {
+                const remainingCups = calculatePossibleCups(prod.recipe);
+                let recipeDetails = [];
+                if (prod.recipe && Object.keys(prod.recipe).length > 0) {
+                    for (let key in prod.recipe) {
+                        if (rawMaterials[key]) {
+                            recipeDetails.push(`${rawMaterials[key].name} (${prod.recipe[key]} ${rawMaterials[key].unit})`);
+                        }
+                    }
+                } else {
+                    recipeDetails.push("ไม่ได้กำหนดสูตรวัตถุดิบไว้");
+                }
+
+                const badgeColor = remainingCups <= 3 ? '#ec5252' : '#2E4F2E';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="border: 1px solid #e6ede5; padding: 12px; font-weight: bold; text-align: center;">${prod.name}</td>
+                        <td style="border: 1px solid #e6ede5; padding: 12px; font-size: 12px; color: #555; text-align: left;">${recipeDetails.join(' + ')}</td>
+                        <td style="border: 1px solid #e6ede5; padding: 12px; font-weight: bold; font-size: 16px; text-align: center; color: ${badgeColor};">
+                            ${remainingCups > 50 ? 'พร้อมขาย' : `ทำได้อีก ${remainingCups} แก้ว`}
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        let productIdToDelete = null;
+
+        function deleteStockItem(id) {
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+            productIdToDelete = id;
+            document.getElementById('delete-target-name').innerText = prod.name;
+            document.getElementById('btn-confirm-delete-action').onclick = executeDeleteStockItem;
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            productIdToDelete = null;
+        }
+
+        function executeDeleteStockItem() {
+            if (productIdToDelete !== null) {
+                products = products.filter(p => p.id !== productIdToDelete);
+                if (recipesData[productIdToDelete]) {
+                    delete recipesData[productIdToDelete];
+                }
+                saveDataToStorage();
+                renderStock();
+                renderStockCupsTable();
+                closeDeleteModal();
+            }
+        }
+
+        function updateUploadBtnText(input) {
+            const label = document.getElementById('upload-btn-label');
+            if (input.files && input.files[0]) {
+                label.innerHTML = `✅ ${input.files[0].name}`;
+                label.style.borderColor = '#2E4F2E';
+            } else {
+                label.innerHTML = `🖼️ อัปโหลดภาพเมนู`;
+                label.style.borderColor = '#cbd5cb';
+            }
+        }
+
+        function addStockProduct() {
+            const nameInput = document.getElementById('stock-input-name');
+            const catInput = document.getElementById('stock-input-cat');
+            const priceInput = document.getElementById('stock-input-price');
+            const fileInput = document.getElementById('stock-input-img');
+
+            const name = nameInput.value.trim();
+            const cat = catInput.value;
+            const price = parseFloat(priceInput.value);
+
+            if(!name || isNaN(price)) {
+                return alert('กรุณากรอกชื่อและกำหนดราคาเครื่องดื่มให้ถูกต้องก่อนครับ!');
+            }
+
+            let emo = '🥤';
+            if (cat === 'กาแฟ') emo = '☕';
+            else if (cat === 'ชา') emo = '🍵';
+            else if (cat === 'นม') emo = '🥛';
+            else if (cat === 'โซดา') emo = '🍹';
+            else if (cat.includes('สมูทตี้')) emo = '🍓';
+
+            let imageUrl = null;
+
+            const saveProduct = () => {
+                const newId = Date.now();
+                products.push({
+                    id: newId,
+                    name: name,
+                    price: price,
+                    category: cat,
+                    emoji: emo,
+                    image: imageUrl,
+                    recipe: {}
+                });
+
+                // สร้างโครงสร้างสูตรชงเบื้องต้นให้สอดคล้องกันทันที
+                recipesData[newId] = {
+                    name: name,
+                    emoji: emo,
+                    ingredients: ["ระบุส่วนผสมชงจริงที่นี่"],
+                    steps: ["ระบุขั้นตอนวิธีทำที่นี่"]
+                };
+
+                saveDataToStorage();
+                nameInput.value = '';
+                priceInput.value = '';
+                fileInput.value = ''; 
+                
+                document.getElementById('upload-btn-label').innerHTML = `🖼️ อัปโหลดภาพเมนู`;
+                document.getElementById('upload-btn-label').style.borderColor = '#cbd5cb';
+
+                renderStock();
+                renderStockCupsTable();
+                renderRecipeSidebar();
+                
+                document.getElementById('add-stock-success-message').innerHTML = `ลงทะเบียนเพิ่มเมนู <strong>${name}</strong><br>เข้าคลังบาร์น้ำเรียบร้อยครับ!`;
+                document.getElementById('addStockSuccessModal').style.display = 'flex';
+            };
+
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { imageUrl = e.target.result; saveProduct(); };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveProduct();
+            }
+        }
+
+        function closeAddStockSuccessModal() {
+            document.getElementById('addStockSuccessModal').style.display = 'none';
+        }
+
+        function renderRecipeSidebar() {
+            const listContainer = document.getElementById('recipe-menu-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            const searchQuery = document.getElementById('recipe-search').value.toLowerCase();
+            const filterCat = document.getElementById('recipe-filter-cat').value;
+
+            products.forEach(prod => {
+                if (filterCat !== 'ทั้งหมด' && prod.category !== filterCat) return;
+                if (searchQuery && !prod.name.toLowerCase().includes(searchQuery)) return;
+
+                const isSelected = prod.id === currentSelectedRecipeId;
+                const btn = document.createElement('button');
+                
+                btn.style.width = "100%";
+                btn.style.display = "flex";
+                btn.style.justifyContent = "space-between"; 
+                btn.style.alignItems = "center";
+                btn.style.padding = "10px 14px";
+                btn.style.border = "1px solid #e6ede5";
+                btn.style.borderRadius = "10px";
+                btn.style.cursor = "pointer";
+                btn.style.fontSize = "13px";
+                btn.style.fontFamily = "'Mali', sans-serif";
+                btn.style.transition = "0.2s";
+                
+                if (isSelected) {
+                    btn.style.backgroundColor = "#2E4F2E";
+                    btn.style.color = "#ffffff";
+                    btn.style.fontWeight = "bold";
+                } else {
+                    btn.style.backgroundColor = "#ffffff";
+                    btn.style.color = "#444444";
+                }
+                
+                btn.onclick = () => {
+                    currentSelectedRecipeId = prod.id;
+                    renderRecipeSidebar();
+                    renderRecipeDetail();
+                };
+
+                btn.innerHTML = `
+                    <span style="display:flex; align-items:center; gap:8px;">${prod.emoji || '🥤'} ${prod.name}</span>
+                `;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        function filterRecipes() {
+            renderRecipeSidebar();
+        }
+
+        function renderRecipeDetail() {
+            const detailBox = document.getElementById('recipe-detail-box');
+            if (!detailBox) return;
+
+            const recipe = recipesData[currentSelectedRecipeId];
+            const activeProduct = products.find(p => p.id === currentSelectedRecipeId);
+
+            if (!activeProduct) {
+                detailBox.innerHTML = `<p style="text-align: center; color: #888888; padding: 120px 0; font-size: 14px;">💡 เลือกเมนูด้านซ้ายเพื่อเรียกดูสูตรชงเครื่องดื่ม</p>`;
+                return;
+            }
+            
+            if (!recipe) {
+                detailBox.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e6ede5; padding-bottom: 10px; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: bold; color: #2E4F2E;">
+                            <span>📋</span> ${activeProduct.name}
+                        </div>
+                    </div>
+                    <p style="color: #666666; font-size: 13px; margin-top: 15px;">เมนูนี้ยังไม่มีข้อมูลสูตรวิธีทำบันทึกไว้ในระบบบาร์น้ำ</p>
+                    <button class="btn-success" style="padding: 6px 12px; font-size: 12px; margin-top: 12px;" onclick="openRecipeModal(true)">✍️ เพิ่มข้อมูลสูตรใหม่</button>
+                `;
+                return;
+            }
+
+            let ingListHTML = recipe.ingredients ? recipe.ingredients.map(ing => `<li style="margin-bottom: 4px;">${ing}</li>`).join('') : '';
+            let stepListHTML = recipe.steps ? recipe.steps.map(step => `<li style="margin-bottom: 6px;">${step}</li>`).join('') : '';
+
+            let stockRecipeDetails = [];
+            if (activeProduct.recipe && Object.keys(activeProduct.recipe).length > 0) {
+                for (let key in activeProduct.recipe) {
+                    if (rawMaterials[key]) {
+                        stockRecipeDetails.push(`<span class="inline-block bg-orange-50 text-orange-700 text-xs px-2.5 py-1 rounded-md border border-orange-200">${rawMaterials[key].name}: ${activeProduct.recipe[key]} ${rawMaterials[key].unit}</span>`);
+                    }
+                }
+            }
+
+            detailBox.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e6ede5; padding-bottom: 10px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: bold; color: #2E4F2E;">
+                        <span>${recipe.emoji || activeProduct.emoji || '🥤'}</span> ${activeProduct.name}
+                    </div>
+                    <button class="btn-success" style="padding: 4px 12px; font-size: 12px;" onclick="openRecipeModal(true)">✏️ แก้ไขสูตร</button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 14px; max-height: 310px; overflow-y: auto; padding-right: 4px;">
+                    ${stockRecipeDetails.length > 0 ? `
+                        <div>
+                            <span style="display: block; font-size: 13px; font-weight: bold; color: #c65911; margin-bottom: 6px;">⚙️ สัดส่วนตัดสต็อกต่อ 1 แก้ว:</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px;">${stockRecipeDetails.join('')}</div>
+                        </div>
+                    ` : ''}
+
+                    <div>
+                        <span style="display: block; font-size: 13px; font-weight: bold; color: #1E361E; margin-bottom: 4px;">🥛 ส่วนผสมหลัก:</span>
+                        <ul style="padding-left: 18px; font-size: 13px; color: #444; line-height: 1.5;">${ingListHTML}</ul>
+                    </div>
+
+                    <div>
+                        <span style="display: block; font-size: 13px; font-weight: bold; color: #1E361E; margin-bottom: 4px;">🧠 วิธีทำ:</span>
+                        <ol style="padding-left: 18px; font-size: 13px; color: #444; line-height: 1.5;">${stepListHTML}</ol>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openRecipeModal(isEdit) {
+            const modal = document.getElementById('recipeModal');
+            const title = document.getElementById('recipe-modal-title');
+            const selectProd = document.getElementById('modal-recipe-product-id');
+            const stockInputsBox = document.getElementById('recipe-ingredients-stock-inputs');
+            
+            selectProd.innerHTML = '';
+            products.forEach(p => {
+                selectProd.innerHTML += `<option value="${p.id}">${p.name} (${p.category})</option>`;
+            });
+
+            if (isEdit && currentSelectedRecipeId) {
+                title.innerText = "แก้ไขสูตรเครื่องดื่ม";
+                selectProd.value = currentSelectedRecipeId;
+                selectProd.disabled = true;
+
+                const recipe = recipesData[currentSelectedRecipeId] || { ingredients: [], steps: [] };
+                document.getElementById('modal-recipe-ingredients').value = recipe.ingredients ? recipe.ingredients.join('\n') : '';
+                document.getElementById('modal-recipe-steps').value = recipe.steps ? recipe.steps.join('\n') : '';
+            } else {
+                title.innerText = "เพิ่มสูตรเครื่องดื่มใหม่";
+                selectProd.disabled = false;
+                if (products.length > 0) selectProd.value = products[0].id;
+                document.getElementById('modal-recipe-ingredients').value = '';
+                document.getElementById('modal-recipe-steps').value = '';
+            }
+
+            // สร้างช่องกรอกจำนวนวัตถุดิบสำหรับตัดสต็อกอัตโนมัติ
+            stockInputsBox.innerHTML = '';
+            const activeProdId = parseInt(selectProd.value);
+            const prodObj = products.find(p => p.id === activeProdId);
+
+            for (let matKey in rawMaterials) {
+                const mat = rawMaterials[matKey];
+                const currentVal = (prodObj && prodObj.recipe && prodObj.recipe[matKey]) ? prodObj.recipe[matKey] : '';
+                stockInputsBox.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; gap: 10px;">
+                        <span style="flex: 1; color: #333;">${mat.name} (${mat.unit}):</span>
+                        <input type="number" id="recipe-mat-input-${matKey}" value="${currentVal}" placeholder="0" style="width: 100px; padding: 4px 8px; text-align: center; border-radius: 8px; border: 1px solid #cbd5cb; font-size: 13px;">
+                    </div>`;
+            }
+
+            // ผูก event เมื่อเปลี่ยนเมนูใน select ให้รีเฟรชช่องวัตถุดิบตาม
+            selectProd.onchange = function() {
+                const selectedId = parseInt(this.value);
+                const pObj = products.find(p => p.id === selectedId);
+                for (let matKey in rawMaterials) {
+                    const inputEl = document.getElementById(`recipe-mat-input-${matKey}`);
+                    if (inputEl) {
+                        inputEl.value = (pObj && pObj.recipe && pObj.recipe[matKey]) ? pObj.recipe[matKey] : '';
+                    }
+                }
+            };
+
+            modal.style.display = 'flex';
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipeModal').style.display = 'none';
+        }
+
+        function saveRecipeData() {
+            const selectProd = document.getElementById('modal-recipe-product-id');
+            const prodId = parseInt(selectProd.value);
+            const prodObj = products.find(p => p.id === prodId);
+
+            const ingText = document.getElementById('modal-recipe-ingredients').value.trim();
+            const stepText = document.getElementById('modal-recipe-steps').value.trim();
+
+            const ingredientsArr = ingText ? ingText.split('\n').map(s => s.trim()).filter(s => s) : [];
+            const stepsArr = stepText ? stepText.split('\n').map(s => s.trim()).filter(s => s) : [];
+
+            // รวบรวมสูตรวัตถุดิบตัดสต็อก
+            let newRecipeStock = {};
+            for (let matKey in rawMaterials) {
+                const inputEl = document.getElementById(`recipe-mat-input-${matKey}`);
+                if (inputEl) {
+                    const val = parseFloat(inputEl.value);
+                    if (!isNaN(val) && val > 0) {
+                        newRecipeStock[matKey] = val;
+                    }
+                }
+            }
+
+            if (prodObj) {
+                prodObj.recipe = newRecipeStock;
+            }
+
+            recipesData[prodId] = {
+                name: prodObj ? prodObj.name : "เมนู",
+                emoji: prodObj ? prodObj.emoji : "🥤",
+                ingredients: ingredientsArr,
+                steps: stepsArr
+            };
+
+            currentSelectedRecipeId = prodId;
+            saveDataToStorage();
+
+            closeRecipeModal();
+            renderRecipeSidebar();
+            renderRecipeDetail();
+            renderStockCupsTable();
+            renderMenu();
+
+            document.getElementById('recipe-success-message').innerHTML = `บันทึกข้อมูลสูตรชง <strong>${prodObj ? prodObj.name : ''}</strong><br>เรียบร้อยแล้วครับ!`;
+            document.getElementById('recipeSuccessModal').style.display = 'flex';
+        }
+
+        function closeRecipeSuccessModal() {
+            document.getElementById('recipeSuccessModal').style.display = 'none';
+        }
+
+        // 📥 ฟังก์ชันส่งออกรายงานสถิติบาร์และยอดขายเป็น CSV (เปิดใน Excel ได้)
+function exportReportToExcel() {
+    const dateInput = document.getElementById('report-filter-date');
+    const selectedDate = dateInput ? dateInput.value : 'all-dates';
+    
+    // ดึงค่าภาพรวมจากหน้าจอมาใส่หัวรายงาน
+    const totalSales = document.getElementById('stat-today-sales') ? document.getElementById('stat-today-sales').innerText : '0.00';
+    const totalCups = document.getElementById('stat-today-cups') ? document.getElementById('stat-today-cups').innerText : '0';
+    const cashCount = document.getElementById('stat-cash-count') ? document.getElementById('stat-cash-count').innerText : '0';
+    const transferCount = document.getElementById('stat-transfer-count') ? document.getElementById('stat-transfer-count').innerText : '0';
+
+    const tbody = document.getElementById('stat-top-products-body');
+    const rows = tbody ? tbody.querySelectorAll('tr') : [];
+
+    if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes('ยังไม่มีข้อมูล'))) {
+        alert('ไม่พบข้อมูลการขายสำหรับวันที่เลือก ไม่สามารถดาวน์โหลดได้');
+        return;
+    }
+
+    // สร้างเนื้อหาไฟล์ CSV (ใส่ \uFEFF เพื่อให้ Excel อ่านภาษาไทยออกไม่เป็นตัวต่างดาว)
+    let csvContent = "\uFEFF";
+    csvContent += `รายงานสถิติบาร์และยอดขาย ประจำวันที่:,${selectedDate}\n`;
+    csvContent += `ยอดขายรวมสุทธิ:,${totalSales} บาท\n`;
+    csvContent += `จำนวนเครื่องดื่มที่ขายได้:,${totalCups} แก้ว\n`;
+    csvContent += `บิลเงินสด:,${cashCount} บิล,บิลเงินโอน:,${transferCount} บิล\n\n`;
+    
+    // หัวตารางอันดับเครื่องดื่มขายดี
+    csvContent += "อันดับ,ชื่อเมนู,หมวดหมู่,จำนวนที่ขายได้,รวมยอดขาย\n";
+
+    // ดึงข้อมูลแถวในตาราง
+    rows.forEach((row, index) => {
+        const cols = row.querySelectorAll('td');
+        if (cols.length >= 4) {
+            const rank = index + 1;
+            const name = `"${cols[0].innerText.trim()}"`;
+            const category = `"${cols[1].innerText.trim()}"`;
+            const qty = `"${cols[2].innerText.trim()}"`;
+            const revenue = `"${cols[3].innerText.trim()}"`;
+
+            csvContent += `${rank},${name},${category},${qty},${revenue}\n`;
+        }
+    });
+
+    // สั่งดาวน์โหลดไฟล์
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bar-sales-report-${selectedDate}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+        // 📊 คำนวณสถิติและยอดขายตามวันที่เลือกในหน้า Report
+        function updateBarAnalytics() {
+            const filterDateInput = document.getElementById('report-filter-date');
+            const selectedDate = filterDateInput ? filterDateInput.value : new Date().toISOString().split('T')[0];
+
+            const filteredInvoices = invoiceHistory.filter(inv => inv.dateStr === selectedDate);
+
+            let totalSales = 0;
+            let totalCups = 0;
+            let cashCount = 0;
+            let transferCount = 0;
+            let productSalesCount = {};
+            let categorySalesMap = {};
+
+            filteredInvoices.forEach(inv => {
+                totalSales += parseFloat(inv.total) || 0;
+                if (inv.method === 'cash') cashCount++;
+                else transferCount++;
+
+                if (inv.cartDetails) {
+                    inv.cartDetails.forEach(item => {
+                        totalCups += item.qty;
+                        
+                        if (!productSalesCount[item.name]) {
+                            productSalesCount[item.name] = { qty: 0, revenue: 0, category: item.category || 'อื่นๆ' };
+                        }
+                        productSalesCount[item.name].qty += item.qty;
+                        productSalesCount[item.name].revenue += item.price * item.qty;
+
+                        let cat = item.category || 'อื่นๆ';
+                        if (!categorySalesMap[cat]) categorySalesMap[cat] = 0;
+                        categorySalesMap[cat] += item.price * item.qty;
+                    });
+                }
+            });
+
+            document.getElementById('stat-today-sales').innerText = totalSales.toFixed(2);
+            document.getElementById('stat-today-cups').innerText = totalCups;
+            document.getElementById('stat-cash-count').innerText = cashCount;
+            document.getElementById('stat-transfer-count').innerText = transferCount;
+
+            // จัดอันดับสินค้าขายดี
+            const topProdBody = document.getElementById('stat-top-products-body');
+            topProdBody.innerHTML = '';
+
+            let sortedProducts = Object.keys(productSalesCount).map(name => {
+                return { name: name, ...productSalesCount[name] };
+            }).sort((a, b) => b.qty - a.qty);
+
+            if (sortedProducts.length === 0) {
+                topProdBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #888888; padding: 30px;">ยังไม่มีข้อมูลการขายในวันที่เลือก</td></tr>`;
+            } else {
+                sortedProducts.forEach(p => {
+                    topProdBody.innerHTML += `
+                        <tr>
+                            <td style="text-align: left; padding-left: 15px;"><strong>${p.name}</strong></td>
+                            <td>${p.category}</td>
+                            <td><span style="background: #e8ede7; padding: 2px 8px; border-radius: 10px; font-weight: bold; color: #2E4F2E;">${p.qty} แก้ว</span></td>
+                            <td style="font-weight: bold; color: #1E361E;">${p.revenue.toFixed(2)} ฿</td>
+                        </tr>`;
+                });
+            }
+
+            // แสดงยอดขายแยกตามหมวดหมู่
+            const catListBox = document.getElementById('stat-category-list');
+            catListBox.innerHTML = '';
+
+            if (Object.keys(categorySalesMap).length === 0) {
+                catListBox.innerHTML = `<div style="text-align: center; color: #888888; padding: 40px 0;">ยังไม่มีข้อมูลยอดขายแยกตามหมวดหมู่</div>`;
+            } else {
+                for (let cat in categorySalesMap) {
+                    let rev = categorySalesMap[cat];
+                    let percent = totalSales > 0 ? ((rev / totalSales) * 100).toFixed(1) : 0;
+                    catListBox.innerHTML += `
+                        <div style="background: #f8faf7; padding: 10px 14px; border-radius: 10px; border: 1px solid #e6ede5;">
+                            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 4px;">
+                                <span>📁 ${cat}</span>
+                                <span style="color: #2E4F2E;">${rev.toFixed(2)} ฿ (${percent}%)</span>
+                            </div>
+                            <div style="width: 100%; background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden;">
+                                <div style="background: #2E4F2E; width: ${percent}%; height: 100%;"></div>
+                            </div>
+                        </div>`;
+                }
+            }
+        }
+
+// ฟังก์ชันสร้าง PromptPay Payload และคำนวณ CRC16 (มาตรฐาน EMV Co.)
+function generatePromptPayPayload(target, amount) {
+    let cleanTarget = target.replace(/[^0-9]/g, "");
+    let targetTag = "";
+    
+    if (cleanTarget.length === 10) {
+        cleanTarget = "0066" + cleanTarget.substring(1);
+        targetTag = "01" + cleanTarget.length.toString().padStart(2, '0') + cleanTarget;
+    } else if (cleanTarget.length === 13) {
+        targetTag = "02" + cleanTarget.length.toString().padStart(2, '0') + cleanTarget;
+    } else if (cleanTarget.length === 15) {
+        targetTag = "03" + cleanTarget.length.toString().padStart(2, '0') + cleanTarget;
+    }
+
+    const merchantAccountInfo = "0016A000000677010111" + targetTag;
+    const merchantAccountInfoTag = "29" + merchantAccountInfo.length.toString().padStart(2, '0') + merchantAccountInfo;
+
+    let data = 
+        "000201" + // Payload Format Indicator
+        "010211" + // Point of Initiation Method (11 = Static, 12 = Dynamic/Lock amount)
+        merchantAccountInfoTag +
+        "5303764" + // Currency (764 = THB)
+        "5802TH";   // Country
+
+    if (amount) {
+        let amtStr = parseFloat(amount).toFixed(2);
+        data += "54" + amtStr.length.toString().padStart(2, '0') + amtStr;
+    }
+
+    data += "6304"; // CRC16 Tag
+    data += crc16(data);
+    return data;
+}
+
+// ฟังก์ชันคำนวณค่า CRC16 Checksum สำหรับ PromptPay
+function crc16(text) {
+    let crc = 0xFFFF;
+    for (let c = 0; c < text.length; c++) {
+        crc ^= text.charCodeAt(c) << 8;
+        for (let i = 0; i < 8; i++) {
+            if (crc & 0x8000) {
+                crc = (crc << 1) ^ 0x1021;
+            } else {
+                crc = crc << 1;
+            }
+        }
+    }
+    let hex = (crc & 0xFFFF).toString(16).toUpperCase();
+    while (hex.length < 4) hex = "0" + hex;
+    return hex;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('report-filter-date');
+    if (dateInput) {
+        // กำหนดค่าเริ่มต้นเป็นวันปัจจุบัน (ถ้ายังไม่มีค่า)
+        if (!dateInput.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+
+        // ดักฟังเฉพาะตอนที่ผู้ใช้เลือกวันและปิดปฏิทินเรียบร้อยแล้ว
+        dateInput.addEventListener('change', function() {
+            if (typeof updateBarAnalytics === 'function') {
+                updateBarAnalytics();
+            }
+        });
+    }
+});
+
+    </script>
+</body>
+</html>
